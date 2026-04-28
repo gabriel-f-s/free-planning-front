@@ -1,0 +1,70 @@
+<div class="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] p-6 md:p-8 max-w-lg mx-auto rounded-md">
+
+  <div class="mb-6 border-b-2 border-dashed border-black dark:border-white pb-4 flex items-end gap-3">
+    <div class="p-2 bg-black dark:bg-white text-white dark:text-black rounded-sm border-2 border-black dark:border-white">
+      <i class="pi pi-user-plus text-xl"></i>
+    </div>
+    <div>
+      <h2 class="text-2xl font-bold tracking-tight text-black dark:text-white leading-none">Novo Cliente</h2>
+      <p class="text-xs text-gray-600 dark:text-gray-400 font-mono mt-1 uppercase tracking-wider">Adicionar à carteira</p>
+    </div>
+  </div>
+
+  <form [formGroup]="clientForm" (ngSubmit)="save()" class="flex flex-col gap-5">
+
+    <div class="flex flex-col gap-2">
+      <label class="font-mono text-sm font-bold text-black dark:text-white flex items-center gap-2">
+        <i class="pi pi-id-card text-xs"></i> Nome do cliente
+      </label>
+      <input
+        pInputText
+        type="text"
+        formControlName="name"
+        class="w-full p-3 border-2 border-black dark:border-white rounded-none bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:focus:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-shadow"
+        placeholder="Ex: Empresa X / João Silva"
+      />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label class="font-mono text-sm font-bold text-black dark:text-white flex items-center gap-2">
+        <i class="pi pi-envelope text-xs"></i> E-mail
+      </label>
+      <input
+        pInputText
+        type="email"
+        formControlName="email"
+        class="w-full p-3 border-2 border-black dark:border-white rounded-none bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:focus:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-shadow"
+        placeholder="contato@empresa.com"
+      />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label class="font-mono text-sm font-bold text-black dark:text-white flex items-center gap-2">
+        <i class="pi pi-phone text-xs"></i> Telefone
+      </label>
+      <input
+        pInputText
+        type="tel"
+        formControlName="phone"
+        class="w-full p-3 border-2 border-black dark:border-white rounded-none bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:focus:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-shadow"
+        placeholder="(00) 00000-0000"
+      />
+    </div>
+
+    <div class="flex flex-col-reverse sm:flex-row justify-end gap-4 border-t-2 border-black dark:border-white pt-6 mt-4">
+      <button
+        type="button"
+        (click)="close()"
+        class="px-6 py-2 font-mono font-bold text-black dark:text-white bg-white dark:bg-zinc-900 border-2 border-black dark:border-white hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        [disabled]="clientForm.invalid"
+        class="px-8 py-2 font-mono font-bold text-white dark:text-black bg-black dark:bg-white border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] hover:-translate-y-0.5 transition-all disabled:bg-gray-400 disabled:border-gray-500 disabled:shadow-none disabled:translate-y-0 disabled:text-gray-200 rounded-none cursor-pointer">
+        Salvar
+      </button>
+    </div>
+  </form>
+</div>
