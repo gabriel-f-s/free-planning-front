@@ -1,0 +1,131 @@
+<div class="flex h-screen bg-gray-50 dark:bg-zinc-950 overflow-hidden font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+  <aside class="bg-white dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-800 h-screen transition-all duration-300 flex flex-col relative z-20 shadow-sm"
+         [class.w-64]="openMenu"
+         [class.w-20]="!openMenu">
+
+    <div class="h-16 border-b border-gray-200 dark:border-zinc-800 flex items-center transition-all duration-300"
+         [ngClass]="openMenu ? 'px-5 justify-between' : 'justify-center'">
+
+      @if (openMenu) {
+        <div class="flex items-center gap-2 overflow-hidden">
+          <div class="w-7 h-7 bg-blue-600 text-white rounded-lg flex items-center justify-center shrink-0">
+            <i class="pi pi-compass text-sm"></i>
+          </div>
+          <span class="font-bold text-sm tracking-tight truncate">Freeplaning</span>
+        </div>
+      }
+
+      <button (click)="changeMenu()"
+              class="w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center justify-center shrink-0">
+        <i class="pi text-sm" [ngClass]="openMenu ? 'pi-angle-left' : 'pi-bars'"></i>
+      </button>
+    </div>
+
+    <nav class="mt-4 flex flex-col gap-2 px-3 flex-grow overflow-y-auto overflow-x-hidden">
+
+      <a routerLink="/"
+         class="p-3 rounded-xl flex items-center cursor-pointer font-medium text-sm text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap overflow-hidden group"
+         [ngClass]="openMenu ? 'justify-start' : 'justify-center'">
+        <i class="pi pi-home text-lg shrink-0 group-hover:scale-110 transition-transform"></i>
+        @if (openMenu) { <span class="ml-3">Dashboard</span> }
+      </a>
+
+      <a routerLink="/projects"
+         class="p-3 rounded-xl flex items-center cursor-pointer font-medium text-sm text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap overflow-hidden group"
+         [ngClass]="openMenu ? 'justify-start' : 'justify-center'">
+        <i class="pi pi-folder text-lg shrink-0 group-hover:scale-110 transition-transform"></i>
+        @if (openMenu) { <span class="ml-3">Projetos</span> }
+      </a>
+
+      <a routerLink="/clients"
+         class="p-3 rounded-xl flex items-center cursor-pointer font-medium text-sm text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap overflow-hidden group"
+         [ngClass]="openMenu ? 'justify-start' : 'justify-center'">
+        <i class="pi pi-users text-lg shrink-0 group-hover:scale-110 transition-transform"></i>
+        @if (openMenu) { <span class="ml-3">Clientes</span> }
+      </a>
+
+      <a routerLink="/settings"
+         class="p-3 rounded-xl flex items-center cursor-pointer font-medium text-sm text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap overflow-hidden group"
+         [ngClass]="openMenu ? 'justify-start' : 'justify-center'">
+        <i class="pi pi-cog text-lg shrink-0 group-hover:scale-110 transition-transform"></i>
+        @if (openMenu) { <span class="ml-3">Configurações</span> }
+      </a>
+
+    </nav>
+  </aside>
+
+  <main class="flex-1 overflow-y-auto relative z-10 flex flex-col">
+
+    <header class="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-gray-200 dark:border-zinc-800 h-16 px-4 sm:px-8 sticky top-0 z-30 flex justify-between items-center">
+
+      <div class="flex items-center gap-3">
+        <h1 class="text-lg font-semibold tracking-tight text-gray-800 dark:text-gray-200">Painel de Controle</h1>
+      </div>
+
+      <div class="flex items-center gap-4">
+
+        <button
+          pButton
+          type="button"
+          [icon]="isDarkMode ? 'pi pi-sun' : 'pi pi-moon'"
+          (click)="toggleDarkMode()"
+          [attr.aria-label]="isDarkMode ? 'Ativar modo claro' : 'Ativar modo escuro'"
+          class="p-button-rounded p-button-text p-button-secondary !w-10 !h-10 flex justify-center items-center text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-zinc-800 dark:hover:text-white transition-colors">
+        </button>
+
+        <div class="w-px h-6 bg-gray-200 dark:bg-zinc-700"></div>
+
+        <button (click)="logout()"
+                class="flex items-center gap-2 px-3 py-2 rounded-lg font-medium text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 dark:text-gray-400 dark:hover:text-red-400 dark:hover:bg-red-900/20 transition-colors cursor-pointer">
+          <i class="pi pi-sign-out"></i>
+          <span class="hidden sm:inline">Sair</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="p-4 sm:p-8 flex-grow">
+      <router-outlet></router-outlet>
+    </div>
+
+  </main>
+
+  <p-dialog
+    [(visible)]="showLogoutModal"
+    [modal]="true"
+    [closable]="false"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="font-sans"
+    [style]="{ width: '90%', maxWidth: '24rem' }">
+
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-500 rounded-full flex items-center justify-center shrink-0">
+          <i class="pi pi-sign-out text-lg"></i>
+        </div>
+        <span class="font-bold text-xl text-gray-900 dark:text-white">Sair do sistema</span>
+      </div>
+    </ng-template>
+
+    <div class="text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
+      Tem certeza que deseja encerrar sua sessão? Você precisará fazer login novamente para acessar seu caderno.
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-end gap-3 pt-5 mt-2 border-t border-gray-100 dark:border-zinc-800">
+        <button
+          (click)="showLogoutModal = false"
+          class="px-4 py-2 font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-zinc-800 dark:text-gray-200 dark:border-zinc-700 dark:hover:bg-zinc-700 transition-colors cursor-pointer">
+          Cancelar
+        </button>
+        <button
+          (click)="confirmLogout()"
+          class="px-5 py-2 font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 shadow-sm transition-colors cursor-pointer">
+          Sim, sair
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+</div>
