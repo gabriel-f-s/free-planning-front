@@ -1,3 +1,7 @@
 <ng-container *ngIf="status as s">
-  <p-tag [value]="s | projectStatus" [severity]="severity" [rounded]="true" />
+  <span
+    class="inline-flex items-center px-2.5 py-1 text-xs font-semibold tracking-wide rounded-full border"
+    [ngClass]="severity">
+    {{ s | projectStatus }}
+  </span>
 </ng-container>

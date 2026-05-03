@@ -10,10 +10,10 @@ export class ProjectPlatformPipe implements PipeTransform {
         return 'GetNinjas';
       case 'WORKANA':
         return 'Workana';
-      case 'NINETY_NINE_JOBS':
-        return '99Jobs';
+      case 'NINETY_NINE_FREELAS':
+        return '99Freelas';
       case 'DIRECT':
-        return 'Direct';
+        return 'Direto';
       case 'OTHER':
         return 'Outro';
       default:

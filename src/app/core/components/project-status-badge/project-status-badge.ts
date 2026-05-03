@@ -20,19 +20,19 @@ export class ProjectStatusBadge {
     switch (this.status) {
       case Status.LOSS:
       case 'LOSS':
-        return 'danger'; // vermelho
+        return 'danger';
       case Status.CANCELED:
       case 'CANCELED':
-        return 'contrast'; // preto
+        return 'contrast';
       case Status.DELIVERED:
       case 'DELIVERED':
-        return 'success'; // verde
+        return 'success';
       case Status.IN_PROGRESS:
       case 'IN_PROGRESS':
-        return 'info'; // azul
+        return 'info';
       case Status.UNDER_NEGOTIATION:
       case 'UNDER_NEGOTIATION':
-        return 'secondary'; // cinza
+        return 'secondary';
       default:
         return 'secondary';
     }

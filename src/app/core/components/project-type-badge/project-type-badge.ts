@@ -16,5 +16,26 @@ type PrimeTagSeverity = 'success' | 'secondary' | 'info' | 'warn' | 'danger' | '
 export class ProjectTypeBadge {
   @Input({ required: true }) type!: Type | string | null | undefined;
 
-  protected readonly severity: PrimeTagSeverity = 'secondary';
+  protected get color(): string {
+    switch (this.type) {
+      case Type.WEB_DEVELOPMENT:
+      case Type.DESKTOP_DEVELOPMENT:
+      case Type.MOBILE_APP_DEVELOPMENT:
+      case Type.AUTOMATION:
+      case Type.TECHNICAL_SUPPORT:
+        return 'bg-indigo-500 text-white font-bold';
+
+      case Type.LOGO_CREATION:
+      case Type.BRAND_CREATION:
+      case Type.UIUX:
+      case Type.DESIGN:
+        return 'bg-pink-500 text-white font-bold';
+
+      case Type.MARKETING:
+        return 'bg-yellow-500 text-white font-bold';
+
+      default:
+        return 'bg-gray-400 text-white font-bold';
+    }
+  }
 }

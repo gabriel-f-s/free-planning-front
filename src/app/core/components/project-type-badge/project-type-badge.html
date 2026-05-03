@@ -1,3 +1,7 @@
 <ng-container *ngIf="type as t">
-  <p-tag [value]="t | projectType" [severity]="severity" [rounded]="true" />
+  <span
+    class="inline-flex items-center px-2.5 py-1 text-xs font-semibold tracking-wide rounded-md border"
+    [ngClass]="color">
+    {{ t | projectType }}
+  </span>
 </ng-container>

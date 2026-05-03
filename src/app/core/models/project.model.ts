@@ -14,7 +14,7 @@ export interface ProjectRequest {
 }
 
 export interface ProjectSummaryResponse {
-  id: number;
+  id: string;
   title: string;
   description: string;
   platform: string;
@@ -26,7 +26,7 @@ export interface ProjectSummaryResponse {
 }
 
 export interface ProjectDetailResponse {
-  id: number;
+  id: string;
   title: string;
   description: string;
   platform: string;
@@ -38,4 +38,14 @@ export interface ProjectDetailResponse {
   deliveryForecast: string;
   deliveryDate: string;
   client: ClientDetailResponse;
+}
+
+export interface ProjectPipelineResponse {
+  id: string,
+  title: string,
+  platform: string
+  type: string,
+  closedValue: number,
+  deliveryDate: string,
+  client: string
 }

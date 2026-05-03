@@ -1,3 +1,7 @@
 <ng-container *ngIf="platform as p">
-  <p-tag [value]="p | projectPlatform" [severity]="severity" [rounded]="true" />
+  <span
+    class="inline-flex items-center px-2.5 py-1 text-xs font-semibold tracking-wide rounded-md border"
+    [ngClass]="color">
+    {{ p | projectPlatform }}
+  </span>
 </ng-container>

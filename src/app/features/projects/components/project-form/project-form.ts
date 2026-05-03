@@ -8,23 +8,19 @@ import {InputNumber} from 'primeng/inputnumber';
 import { DatePickerModule } from 'primeng/datepicker';
 
 
-import { Type } from '../../core/enums/type.enum';
-import { Platform } from '../../core/enums/platform.enum';
-import { ClientsService } from '../clients/clients.service';
-import { ProjectTypePipe } from '../../core/pipes/project-type-pipe';
-import { ProjectPlatformPipe } from '../../core/pipes/project-platform-pipe';
-import { ClientSummaryResponse } from '../../core/models/client.model';
-import { PaginationModel } from '../../core/models/pagination.model';
-import { ClientForm } from '../client-form/client-form';
-import { ProjectService } from '../projects/project.service';
+import { Type } from '../../../../core/enums/type.enum';
+import { Platform } from '../../../../core/enums/platform.enum';
+import { ClientsService } from '../../../clients/services/clients.service';
+import { ClientSummaryResponse } from '../../../../core/models/client.model';
+import { PaginationModel } from '../../../../core/models/pagination.model';
+import { ClientForm } from '../../../clients/components/client-form/client-form';
+import { ProjectService } from '../../services/project.service';
 import { Subject, debounceTime, distinctUntilChanged, filter, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-project-form',
   imports: [
     DatePickerModule,
-    ProjectTypePipe,
-    ProjectPlatformPipe,
     AutoComplete,
     ReactiveFormsModule,
     Select,

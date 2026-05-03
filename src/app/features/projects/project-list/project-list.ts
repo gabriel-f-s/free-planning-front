@@ -4,14 +4,15 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { PaginatorModule } from 'primeng/paginator';
 import { DialogService } from 'primeng/dynamicdialog';
 
-import { PaginationModel } from '../../core/models/pagination.model';
-import { ProjectSummaryResponse } from '../../core/models/project.model';
-import { ProjectStatusBadge } from '../../core/components/project-status-badge/project-status-badge';
-import { ProjectPlatformBadge } from '../../core/components/project-platform-badge/project-platform-badge';
-import { ProjectTypeBadge } from '../../core/components/project-type-badge/project-type-badge';
+import { PaginationModel } from '../../../core/models/pagination.model';
+import { ProjectSummaryResponse } from '../../../core/models/project.model';
+import { ProjectStatusBadge } from '../../../core/components/project-status-badge/project-status-badge';
+import { ProjectPlatformBadge } from '../../../core/components/project-platform-badge/project-platform-badge';
+import { ProjectTypeBadge } from '../../../core/components/project-type-badge/project-type-badge';
 
-import { ProjectForm } from '../project-form/project-form';
-import { ProjectService } from './project.service';
+import { ProjectForm } from '../components/project-form/project-form';
+import { ProjectService } from '../services/project.service';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-projects',
@@ -22,12 +23,13 @@ import { ProjectService } from './project.service';
     ProjectTypeBadge,
     CurrencyPipe,
     DatePipe,
+    RouterLink,
   ],
-  templateUrl: './projects.html',
-  styleUrl: './projects.css',
+  templateUrl: './project-list.html',
+  styleUrl: './project-list.css',
   standalone: true,
 })
-export class Projects implements OnInit {
+export class ProjectList implements OnInit {
   private projectService: ProjectService = inject(ProjectService);
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   private dialogService: DialogService = inject(DialogService);
