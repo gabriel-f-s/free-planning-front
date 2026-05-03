@@ -11,3 +11,7 @@ export interface DashboardPipeline {
   underNegotiationProjects: ProjectPipelineResponse[],
   onHoldProjects: ProjectPipelineResponse[]
 }
+
+export interface DashboardNotes {
+  content: string
+}
