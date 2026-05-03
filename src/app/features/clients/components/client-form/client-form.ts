@@ -5,7 +5,7 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 
-import { ClientsService } from '../clients/clients.service';
+import { ClientsService } from '../../services/clients.service';
 
 @Component({
   selector: 'app-client-form',

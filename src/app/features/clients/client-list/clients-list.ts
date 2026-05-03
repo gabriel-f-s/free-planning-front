@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-clients',
   imports: [],
-  templateUrl: './clients.html',
-  styleUrl: './clients.css',
+  templateUrl: './client-list.html',
+  styleUrl: './client-list.css',
 })
-export class Clients {}
+export class ClientsList {}
