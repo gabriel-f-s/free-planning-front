@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService} from '../services/auth.service';
-import {jwtDecode, JwtPayload} from 'jwt-decode';
+import { AuthService } from '../services/auth.service';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
@@ -16,9 +16,14 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   try {
     const decoded: JwtPayload = jwtDecode(token);
-    // @ts-ignore
-    const expireDateInMs: number = decoded.exp * 1000;
-    const actualMoment: number = Date.now();
+    const exp = decoded.exp;
+    if (typeof exp !== 'number') {
+      authService.removeToken();
+      router.navigate(['/auth/login']);
+      return false;
+    }
+    const expireDateInMs = exp * 1000;
+    const actualMoment = Date.now();
 
     if (actualMoment > expireDateInMs) {
       authService.removeToken();
@@ -32,5 +37,4 @@ export const authGuard: CanActivateFn = (route, state) => {
     router.navigate(['/auth/login']);
     return false;
   }
-
 };

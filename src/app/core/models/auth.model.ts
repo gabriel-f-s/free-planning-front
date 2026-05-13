@@ -11,6 +11,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   occupation: Occupation;
+  hourlyRate: number;
 }
 
 export interface AuthResponse {

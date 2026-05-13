@@ -4,10 +4,9 @@ import {
   HttpHandler,
   HttpEvent,
   HttpInterceptor,
-  HttpResponse,
-  HttpErrorResponse
+
 } from '@angular/common/http';
-import {catchError, Observable, throwError} from 'rxjs';
+import { Observable} from 'rxjs';
 import { AuthService} from '../services/auth.service';
 import {Router} from '@angular/router';
 
