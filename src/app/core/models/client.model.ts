@@ -1,14 +1,18 @@
+import {ProjectSummaryResponse} from './project.model';
 
 export interface ClientDetailResponse {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phone: string;
+  projects: ProjectSummaryResponse[];
 }
 
 export interface ClientSummaryResponse {
-  id: number;
+  id: string;
   name: string;
+  email: string;
+  phone: string;
 }
 
 export interface ClientRequest {

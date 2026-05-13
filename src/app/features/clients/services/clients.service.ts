@@ -25,7 +25,19 @@ export class ClientsService {
     return this.http.get<PaginationModel>(`${this.API_URL}/clients?name=${name}`)
   }
 
+  findOne(id: string): Observable<ClientDetailResponse> {
+    return this.http.get<ClientDetailResponse>(`${this.API_URL}/clients/${id}`)
+  }
+
   create(client: ClientRequest): Observable<ClientDetailResponse> {
     return this.http.post<ClientDetailResponse>(`${this.API_URL}/clients`, client)
+  }
+
+  update(id: string, client: ClientRequest): Observable<ClientDetailResponse> {
+    return this.http.put<ClientDetailResponse>(`${this.API_URL}/clients/${id}`, client)
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/clients/${id}`)
   }
 }

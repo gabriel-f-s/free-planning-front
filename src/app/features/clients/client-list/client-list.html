@@ -1,1 +1,119 @@
-<p>clients works!</p>
+<div class="max-w-[1400px] mx-auto p-4 md:p-6 font-sans text-slate-900 dark:text-neutral-200">
+  <div
+    class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b border-slate-200 dark:border-neutral-700 gap-4"
+  >
+    <div>
+      <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-neutral-100">
+        Meus Clientes
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-neutral-400 mt-1">
+        Gerencie sua carteira de contatos e visualize o histórico.
+      </p>
+    </div>
+    <button
+      (click)="openClientDialog()"
+      class="flex items-center gap-2 px-4 py-2 font-medium text-white bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg shadow-sm transition-colors cursor-pointer"
+    >
+      <i class="pi pi-user-plus text-sm"></i>
+      <span>Novo Cliente</span>
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="py-20 flex flex-col items-center justify-center gap-4">
+      <i class="pi pi-spin pi-spinner text-4xl text-slate-600 dark:text-slate-400"></i>
+      <span class="text-slate-500 dark:text-neutral-400 font-medium text-sm"
+        >Carregando carteira de clientes...</span
+      >
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-8">
+      @for (client of clients; track client.id) {
+        <div
+          class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex flex-col h-full overflow-hidden"
+        >
+          <div class="p-6 flex-grow flex flex-col items-center text-center">
+            <div
+              class="w-16 h-16 bg-slate-100 dark:bg-neutral-700 text-slate-600 dark:text-neutral-300 rounded-full flex items-center justify-center mb-4 shadow-sm border border-slate-200 dark:border-neutral-600"
+            >
+              <i class="pi pi-user text-2xl"></i>
+            </div>
+
+            <h3
+              class="text-lg font-bold text-slate-900 dark:text-neutral-100 truncate w-full"
+              [title]="client.name"
+            >
+              {{ client.name }}
+            </h3>
+
+            <div
+              class="mt-4 flex flex-col gap-2 w-full text-left bg-slate-50 dark:bg-neutral-900/50 p-3 rounded-xl border border-slate-100 dark:border-neutral-700/50"
+            >
+              <div class="flex items-center gap-2.5 text-sm truncate" [title]="client.email">
+                <i class="pi pi-envelope text-slate-400 dark:text-neutral-500 shrink-0"></i>
+                <span class="text-slate-600 dark:text-neutral-300 truncate">{{
+                  client.email || 'Sem e-mail'
+                }}</span>
+              </div>
+
+              <div class="flex items-center gap-2.5 text-sm truncate" [title]="client.phone">
+                <i class="pi pi-whatsapp text-green-500 shrink-0"></i>
+                <span class="text-slate-600 dark:text-neutral-300 truncate">{{
+                  client.phone || 'Sem telefone'
+                }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="p-4 border-t border-slate-100 dark:border-neutral-700 bg-slate-50/50 dark:bg-neutral-800/50 flex justify-between items-center"
+          >
+            <button
+              class="p-2 text-slate-400 hover:text-slate-700 hover:bg-white rounded-lg dark:hover:bg-neutral-700 dark:hover:text-neutral-200 transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-neutral-600"
+              title="Editar Contato"
+              (click)="editClient(client)"
+            >
+              <i class="pi pi-pencil"></i>
+            </button>
+            <button
+              [routerLink]="['/clients', client.id]"
+              class="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 dark:text-slate-300 dark:bg-neutral-700 dark:border-neutral-600 dark:hover:bg-neutral-600 transition-colors cursor-pointer shadow-sm"
+            >
+              Ver perfil
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div
+          class="col-span-full py-16 rounded-2xl border border-dashed border-slate-300 dark:border-neutral-700 flex flex-col justify-center items-center bg-slate-50/50 dark:bg-neutral-800/50"
+        >
+          <div
+            class="w-16 h-16 bg-slate-100 dark:bg-neutral-700 rounded-full flex items-center justify-center mb-4"
+          >
+            <i class="pi pi-users text-2xl text-slate-400 dark:text-neutral-500"></i>
+          </div>
+          <p class="text-slate-600 dark:text-neutral-400 font-medium text-center">
+            Sua carteira de clientes está vazia.
+          </p>
+          <button
+            (click)="openClientDialog()"
+            class="mt-4 text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 text-sm font-semibold cursor-pointer transition-colors"
+          >
+            + Cadastrar primeiro cliente
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="mt-2 flex justify-center">
+    <p-paginator
+      (onPageChange)="changePage($event)"
+      [first]="actualPage * pageSize"
+      [rows]="pageSize"
+      [totalRecords]="totalElements"
+      [rowsPerPageOptions]="[8, 16, 24]"
+    >
+    </p-paginator>
+  </div>
+</div>
