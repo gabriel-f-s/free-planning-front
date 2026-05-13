@@ -1,14 +1,17 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import {provideRouter, withViewTransitions} from '@angular/router';
 
 import { routes } from './app.routes';
-import {HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
-import {AuthInterceptor} from './core/interceptors/auth.interceptor';
+import {HTTP_INTERCEPTORS, provideHttpClient, withInterceptors, withInterceptorsFromDi} from '@angular/common/http';
+import {AuthInterceptor} from './core/interceptors/auth-interceptor';
 import {providePrimeNG} from 'primeng/config';
 import { DialogService } from 'primeng/dynamicdialog';
 import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 import Aura from '@primeng/themes/aura'
 import { definePreset } from '@primeng/themes';
+import {MessageService} from 'primeng/api';
+import {errorInterceptor} from './core/interceptors/error-interceptor';
+import {provideMarkdown} from 'ngx-markdown';
 
 const Noir = definePreset(Aura, {
   semantic: {
@@ -59,8 +62,14 @@ const Noir = definePreset(Aura, {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideRouter(
+      routes,
+      withViewTransitions()
+    ),
+    provideHttpClient(
+      withInterceptorsFromDi(),
+      withInterceptors([errorInterceptor])
+      ),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
@@ -81,6 +90,8 @@ export const appConfig: ApplicationConfig = {
         menu: 1000,
         tooltip: 1100
       }
-    })
+    }),
+    MessageService,
+    provideMarkdown(),
   ]
 };
