@@ -12,6 +12,6 @@ export interface DashboardPipeline {
   onHoldProjects: ProjectPipelineResponse[]
 }
 
-export interface DashboardNotes {
+export interface AnnotationDTO {
   content: string
 }

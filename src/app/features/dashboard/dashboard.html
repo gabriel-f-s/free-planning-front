@@ -1,178 +1,441 @@
-<div class="max-w-[1400px] mx-auto p-4 md:p-6 flex flex-col gap-8 font-sans text-gray-800 dark:text-gray-100">
-<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4">
+<div
+  class="max-w-[1400px] mx-auto p-4 md:p-6 flex flex-col gap-8 font-sans text-slate-800 dark:text-neutral-200"
+>
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4">
     <div>
-      <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">Dashboard</h1>
-      <p class="text-gray-500 dark:text-gray-400 text-sm mt-1 flex items-center gap-2">
+      <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-neutral-100">
+        Dashboard
+      </h1>
+      <p class="text-slate-500 dark:text-neutral-400 text-sm mt-1 flex items-center gap-2">
         Visão estratégica dos seus projetos e métricas
       </p>
     </div>
-<div class="flex items-center gap-2">
-      <span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-500/20">
+    <div class="flex items-center gap-2">
+      <span
+        class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-slate-100 text-slate-700 dark:bg-neutral-800 dark:text-neutral-300 border border-slate-200 dark:border-neutral-700"
+      >
         <i class="pi pi-calendar text-[10px]"></i> Visão Geral Ativa
       </span>
     </div>
   </div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-<div class="bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 hover:shadow-md transition-shadow">
-      <div class="flex items-center justify-between">
-        <div class="flex flex-col">
-          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Projetos Ativos</span>
-          <span class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ activeProjectsCounter }}</span>
-        </div>
-        <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
-          <i class="pi pi-briefcase text-xl"></i>
-        </div>
-      </div>
-    </div>
-<div class="bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 hover:shadow-md transition-shadow">
-      <div class="flex items-center justify-between">
-        <div class="flex flex-col">
-          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Faturamento (Mês)</span>
-          <span class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ monthBilling | currency:'BRL' }}</span>
-        </div>
-        <div class="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-600 dark:text-green-400">
-          <i class="pi pi-money-bill text-xl"></i>
-        </div>
-      </div>
-    </div>
-<div class="bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 hover:shadow-md transition-shadow">
-      <div class="flex items-center justify-between">
-        <div class="flex flex-col">
-          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Entregas (Semana)</span>
-          <span class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ deliveriesThisWeek }}</span>
-        </div>
-        <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400">
-          <i class="pi pi-calendar-times text-xl"></i>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-<div class="lg:col-span-8 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 p-6 overflow-x-auto">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <i class="pi pi-sitemap text-gray-400"></i> Pipeline
-        </h2>
+  @if (isLoading) {
+    <div class="flex flex-col gap-4">
+      <p-skeleton width="10rem" height="1.5rem"></p-skeleton>
+      <p-skeleton width="100%" height="3rem"></p-skeleton>
+      <div class="flex gap-4">
+        <p-skeleton width="100%" height="10rem"></p-skeleton>
+        <p-skeleton width="50%" height="10rem"></p-skeleton>
       </div>
-
-      <div class="flex gap-4 min-w-[700px]">
-<div class="flex-1 bg-gray-50/50 dark:bg-zinc-800/50 rounded-xl p-4 flex flex-col gap-3">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Em Negociação</span>
-            <span class="bg-gray-200 dark:bg-zinc-700 text-gray-600 dark:text-gray-300 text-xs py-0.5 px-2 rounded-full">{{ projectsNegotiation.length }}</span>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div
+        class="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-700 hover:shadow-md transition-shadow"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col">
+            <span class="text-sm font-medium text-slate-500 dark:text-neutral-400"
+              >Projetos Ativos</span
+            >
+            <span class="text-3xl font-bold text-slate-900 dark:text-neutral-100 mt-2">{{
+              activeProjectsCounter
+            }}</span>
           </div>
+          <div
+            class="w-12 h-12 rounded-xl bg-slate-50 dark:bg-neutral-700 flex items-center justify-center text-slate-600 dark:text-neutral-300"
+          >
+            <i class="pi pi-briefcase text-xl"></i>
+          </div>
+        </div>
+      </div>
 
-          @for (proj of projectsNegotiation; track proj.id) {
-            <div class="bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-700 cursor-pointer transition-colors" [routerLink]="['/projects', proj.id]">
-              <div class="font-medium text-sm text-gray-900 dark:text-white truncate">{{ proj.title }}</div>
-              <div class="text-xs text-gray-500 mt-2 font-medium">{{ proj.closedValue | currency:'BRL' }}</div>
+      <div
+        class="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-700 hover:shadow-md transition-shadow"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col">
+            <span class="text-sm font-medium text-slate-500 dark:text-neutral-400"
+              >Faturamento (Mês)</span
+            >
+            <span class="text-3xl font-bold text-slate-900 dark:text-neutral-100 mt-2">{{
+              monthBilling | currency: 'BRL'
+            }}</span>
+          </div>
+          <div
+            class="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-900/10 flex items-center justify-center text-green-600 dark:text-green-500"
+          >
+            <i class="pi pi-money-bill text-xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-700 hover:shadow-md transition-shadow"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col">
+            <span class="text-sm font-medium text-slate-500 dark:text-neutral-400"
+              >Entregas (Semana)</span
+            >
+            <span class="text-3xl font-bold text-slate-900 dark:text-neutral-100 mt-2">{{
+              deliveriesThisWeek
+            }}</span>
+          </div>
+          <div
+            class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-900/10 flex items-center justify-center text-purple-600 dark:text-purple-400"
+          >
+            <i class="pi pi-calendar-times text-xl"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div
+        class="lg:col-span-8 bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-700 p-6 overflow-x-auto"
+      >
+        <div class="flex items-center justify-between mb-6">
+          <h2
+            class="text-lg font-bold text-slate-900 dark:text-neutral-100 flex items-center gap-2"
+          >
+            <i class="pi pi-sitemap text-slate-400 dark:text-neutral-500"></i> Pipeline
+          </h2>
+        </div>
+
+        <div class="flex gap-4 min-w-[700px]" cdkDropListGroup>
+          <div
+            cdkDropList
+            [cdkDropListData]="projectsNegotiation"
+            (cdkDropListDropped)="dropProject($event, 'UNDER_NEGOTIATION')"
+            class="flex-1 bg-slate-50 dark:bg-neutral-800/50 rounded-xl p-4 flex flex-col gap-3 border border-transparent dark:border-neutral-700/50 min-h-[200px]"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <span
+                class="text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider"
+                >Em Negociação</span
+              >
+              <span
+                class="bg-slate-200 dark:bg-neutral-700 text-slate-700 dark:text-neutral-300 text-xs py-0.5 px-2 rounded-full"
+                >{{ projectsNegotiation.length }}</span
+              >
             </div>
-          }
-        </div>
-<div class="flex-1 bg-blue-50/30 dark:bg-blue-900/10 rounded-xl p-4 flex flex-col gap-3 border border-blue-50 dark:border-blue-900/30">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Em Andamento</span>
-            <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs py-0.5 px-2 rounded-full">{{ projectsInProgress.length }}</span>
+
+            @for (proj of projectsNegotiation; track proj.id) {
+              <div
+                cdkDrag
+                class="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-neutral-600 hover:border-slate-400 dark:hover:border-neutral-500 cursor-grab active:cursor-grabbing transition-colors"
+                [routerLink]="['/projects', proj.id]"
+              >
+                <div
+                  *cdkDragPlaceholder
+                  class="bg-slate-200/50 dark:bg-neutral-700/50 rounded-lg border-2 border-dashed border-slate-400 dark:border-neutral-500 min-h-[70px]"
+                ></div>
+                <div class="font-medium text-sm text-slate-900 dark:text-neutral-200 truncate">
+                  {{ proj.title }}
+                </div>
+                <div class="text-xs text-slate-500 dark:text-neutral-400 mt-2 font-medium">
+                  {{ proj.closedValue | currency: 'BRL' }}
+                </div>
+              </div>
+            }
           </div>
 
-          @for (proj of projectsInProgress; track proj.id) {
-            <div class="bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-700 cursor-pointer transition-colors" [routerLink]="['/projects', proj.id]">
-              <div class="font-medium text-sm text-gray-900 dark:text-white truncate">{{ proj.title }}</div>
-              <div class="text-xs font-medium text-orange-500 dark:text-orange-400 mt-2 flex items-center gap-1.5">
-                <i class="pi pi-clock text-[10px]"></i> Entrega: {{ proj.deliveryDate | date:'dd/MM' }}
+          <div
+            cdkDropList
+            [cdkDropListData]="projectsInProgress"
+            (cdkDropListDropped)="dropProject($event, 'IN_PROGRESS')"
+            class="flex-1 bg-slate-100/50 dark:bg-slate-900/20 rounded-xl p-4 flex flex-col gap-3 border border-slate-200 dark:border-slate-700/30 min-h-[200px]"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <span
+                class="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider"
+                >Em Andamento</span
+              >
+              <span
+                class="bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs py-0.5 px-2 rounded-full"
+                >{{ projectsInProgress.length }}</span
+              >
+            </div>
+
+            @for (proj of projectsInProgress; track proj.id) {
+              <div
+                cdkDrag
+                class="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-neutral-600 hover:border-slate-400 dark:hover:border-neutral-500 cursor-grab active:cursor-grabbing transition-colors"
+                [routerLink]="['/projects', proj.id]"
+              >
+                <div
+                  *cdkDragPlaceholder
+                  class="bg-slate-200/50 dark:bg-neutral-700/50 rounded-lg border-2 border-dashed border-slate-400 dark:border-neutral-500 min-h-[70px]"
+                ></div>
+                <div class="font-medium text-sm text-slate-900 dark:text-neutral-200 truncate">
+                  {{ proj.title }}
+                </div>
+                <div
+                  class="text-xs font-medium text-orange-500 dark:text-orange-400/80 mt-2 flex items-center gap-1.5"
+                >
+                  @if (proj.deliveryDate) {
+                    <i class="pi pi-clock text-[10px]"></i> Entrega:
+                    {{ proj.deliveryDate | date: 'dd/MM' }}
+                  } @else {
+                    <i class="pi pi-clock text-[10px]"></i> Sem data definida
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <div
+            cdkDropList
+            [cdkDropListData]="projectsOnHold"
+            (cdkDropListDropped)="dropProject($event, 'ON_HOLD')"
+            class="flex-1 bg-yellow-50/50 dark:bg-yellow-900/5 rounded-xl p-4 flex flex-col gap-3 border border-yellow-100/50 dark:border-yellow-900/20 min-h-[200px]"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <span
+                class="text-xs font-semibold text-yellow-600 dark:text-yellow-500/70 uppercase tracking-wider"
+                >Pausado</span
+              >
+              <span
+                class="bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-500/80 text-xs py-0.5 px-2 rounded-full"
+                >{{ projectsOnHold.length }}</span
+              >
+            </div>
+
+            @for (proj of projectsOnHold; track proj.id) {
+              <div
+                cdkDrag
+                class="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-neutral-700 cursor-grab active:cursor-grabbing opacity-80 hover:opacity-100 transition-opacity"
+                [routerLink]="['/projects', proj.id]"
+              >
+                <div
+                  *cdkDragPlaceholder
+                  class="bg-slate-200/50 dark:bg-neutral-700/50 rounded-lg border-2 border-dashed border-slate-400 dark:border-neutral-500 min-h-[70px]"
+                ></div>
+                <div
+                  class="font-medium text-sm text-slate-500 dark:text-neutral-400 truncate line-through"
+                >
+                  {{ proj.title }}
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-4 flex flex-col gap-6">
+        <div
+          class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-700 p-6"
+        >
+          <h3
+            class="text-sm font-bold text-slate-900 dark:text-neutral-100 mb-1 flex items-center gap-2"
+          >
+            Custo de Aquisição (GetNinjas)
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-neutral-400 mb-5">
+            Calcule o valor real gasto por lead.
+          </p>
+
+          <form [formGroup]="getNinjasForm" class="flex flex-col gap-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-medium text-slate-700 dark:text-neutral-300"
+                  >Valor do Pacote</label
+                >
+                <p-inputNumber
+                  formControlName="packagePrice"
+                  mode="currency"
+                  currency="BRL"
+                  locale="pt-BR"
+                  styleClass="w-full"
+                  inputStyleClass="w-full bg-slate-50 dark:bg-neutral-900 border-slate-200 dark:border-neutral-700"
+                  placeholder="R$ 179,00"
+                ></p-inputNumber>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-medium text-slate-700 dark:text-neutral-300"
+                  >Moedas Recebidas</label
+                >
+                <p-inputNumber
+                  formControlName="packageCoins"
+                  styleClass="w-full"
+                  inputStyleClass="w-full bg-slate-50 dark:bg-neutral-900 border-slate-200 dark:border-neutral-700"
+                  placeholder="1200"
+                ></p-inputNumber>
               </div>
             </div>
-          }
-        </div>
-<div class="flex-1 bg-yellow-50/30 dark:bg-yellow-900/10 rounded-xl p-4 flex flex-col gap-3 border border-yellow-50 dark:border-yellow-900/30">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-yellow-600 dark:text-yellow-500 uppercase tracking-wider">Pausado</span>
-            <span class="bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 text-xs py-0.5 px-2 rounded-full">{{ projectsOnHold.length }}</span>
-          </div>
 
-          @for (proj of projectsOnHold; track proj.id) {
-            <div class="bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-zinc-700 cursor-pointer opacity-60 hover:opacity-100 transition-opacity" [routerLink]="['/projects', proj.id]">
-              <div class="font-medium text-sm text-gray-500 dark:text-gray-400 truncate line-through">{{ proj.title }}</div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-medium text-slate-700 dark:text-neutral-300"
+                >Custo para Desbloquear (Moedas)</label
+              >
+              <p-inputNumber
+                formControlName="projectUnlockCoins"
+                styleClass="w-full"
+                inputStyleClass="w-full bg-slate-50 dark:bg-neutral-900 border-slate-200 dark:border-neutral-700"
+                placeholder="224"
+              ></p-inputNumber>
+            </div>
+
+            <div
+              class="mt-2 p-4 bg-slate-50 dark:bg-neutral-800/50 rounded-xl border border-slate-200 dark:border-neutral-700 flex justify-between items-center"
+            >
+              <span class="text-sm font-medium text-slate-600 dark:text-neutral-400"
+                >Custo Real:</span
+              >
+              <span class="font-bold text-lg text-slate-900 dark:text-neutral-100">{{
+                realLeadCost | currency: 'BRL'
+              }}</span>
+            </div>
+          </form>
+        </div>
+
+        <div
+          class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-700 p-6"
+        >
+          <h3
+            class="text-sm font-bold text-slate-900 dark:text-neutral-100 mb-5 flex items-center gap-2"
+          >
+            Estimativa de Precificação
+          </h3>
+
+          <form [formGroup]="hourForm" class="flex flex-col gap-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-medium text-slate-700 dark:text-neutral-300"
+                  >Valor da Hora</label
+                >
+                <p-inputNumber
+                  formControlName="hourValue"
+                  mode="currency"
+                  currency="BRL"
+                  locale="pt-BR"
+                  styleClass="w-full"
+                  inputStyleClass="w-full bg-slate-50 dark:bg-neutral-900 border-slate-200 dark:border-neutral-700"
+                ></p-inputNumber>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-medium text-slate-700 dark:text-neutral-300"
+                  >Horas Estimadas</label
+                >
+                <p-inputNumber
+                  formControlName="estimatedHours"
+                  styleClass="w-full"
+                  inputStyleClass="w-full bg-slate-50 dark:bg-neutral-900 border-slate-200 dark:border-neutral-700"
+                ></p-inputNumber>
+              </div>
+            </div>
+
+            <div
+              class="mt-2 p-4 bg-slate-50 dark:bg-neutral-700/30 rounded-xl border border-slate-200 dark:border-neutral-600 text-center"
+            >
+              <span class="text-xs font-medium text-slate-600 dark:text-neutral-400 block mb-1"
+                >Preço Base Sugerido</span
+              >
+              <span class="font-bold text-2xl text-slate-800 dark:text-neutral-200">{{
+                suggestedPrice | currency: 'BRL'
+              }}</span>
+            </div>
+          </form>
+        </div>
+
+        <div
+          class="bg-yellow-50/50 dark:bg-yellow-900/5 rounded-2xl shadow-sm border border-yellow-100/80 dark:border-yellow-900/20 p-6 flex flex-col h-full max-h-[350px] relative"
+        >
+          @if (isSavingNotes) {
+            <div
+              class="absolute top-4 right-4 flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-neutral-500 z-10"
+            >
+              <i class="pi pi-spin pi-spinner"></i>
             </div>
           }
+
+          <div
+            class="flex items-center justify-between mb-4 border-b border-yellow-200/50 dark:border-yellow-900/30 pb-3 shrink-0"
+          >
+            <h4
+              class="text-sm font-bold text-slate-900 dark:text-neutral-100 flex items-center gap-2"
+            >
+              <i class="pi pi-pen-to-square text-yellow-600 dark:text-yellow-500/80"></i> Notas
+              Rápidas
+            </h4>
+
+            <button
+              type="button"
+              (click)="isNotesExpanded = true"
+              class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700 dark:hover:bg-neutral-700 transition-colors shadow-sm cursor-pointer"
+            >
+              <i class="pi pi-pencil text-[10px]"></i> Editar
+            </button>
+          </div>
+
+          <div class="flex-grow overflow-y-auto custom-scrollbar pr-2">
+            <div class="ql-snow">
+              <div
+                class="quill-view-content p-0 text-sm text-slate-700 dark:text-neutral-300 break-words whitespace-pre-wrap"
+                [innerHTML]="
+                  quickNotesControl.value ||
+                  '<p class=\'text-slate-400 italic\'>Suas ideias e lembretes diários aparecem aqui. Clique em Editar para começar.</p>'
+                "
+              ></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-<div class="lg:col-span-4 flex flex-col gap-6">
-<div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 p-6">
-        <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
-          Custo de Aquisição (GetNinjas)
-        </h3>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mb-5">
-          Calcule o valor real gasto por lead.
-        </p>
+  }
 
-        <form [formGroup]="getNinjasForm" class="flex flex-col gap-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Valor do Pacote</label>
-<p-inputNumber formControlName="packagePrice" mode="currency" currency="BRL" locale="pt-BR"
-                             styleClass="w-full" inputStyleClass="w-full" placeholder="R$ 179,00"></p-inputNumber>
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Moedas Recebidas</label>
-              <p-inputNumber formControlName="packageCoins" styleClass="w-full" inputStyleClass="w-full" placeholder="1200"></p-inputNumber>
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Custo para Desbloquear (Moedas)</label>
-            <p-inputNumber formControlName="projectUnlockCoins" styleClass="w-full" inputStyleClass="w-full" placeholder="224"></p-inputNumber>
-          </div>
-
-          <div class="mt-2 p-4 bg-gray-50 dark:bg-zinc-800/50 rounded-xl border border-gray-100 dark:border-zinc-700 flex justify-between items-center">
-            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Custo Real do Lead:</span>
-            <span class="font-bold text-lg text-gray-900 dark:text-white">{{ realLeadCost | currency:'BRL' }}</span>
-          </div>
-        </form>
-      </div>
-<div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 p-6">
-        <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-5 flex items-center gap-2">
-          Estimativa de Precificação
-        </h3>
-
-        <form [formGroup]="hourForm" class="flex flex-col gap-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Valor da Hora</label>
-              <p-inputNumber formControlName="hourValue" mode="currency" currency="BRL" locale="pt-BR" styleClass="w-full" inputStyleClass="w-full"></p-inputNumber>
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Horas Estimadas</label>
-              <p-inputNumber formControlName="estimatedHours" styleClass="w-full" inputStyleClass="w-full"></p-inputNumber>
-            </div>
-          </div>
-
-          <div class="mt-2 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/30 text-center">
-            <span class="text-xs font-medium text-blue-600 dark:text-blue-400 block mb-1">Preço Base Sugerido</span>
-            <span class="font-bold text-2xl text-blue-700 dark:text-blue-300">{{ suggestedPrice | currency:'BRL' }}</span>
-          </div>
-        </form>
-      </div>
-<div class="bg-yellow-50 dark:bg-yellow-900/10 rounded-2xl shadow-sm border border-yellow-100 dark:border-yellow-900/30 p-6 relative">
-        @if (isSavingNotes) {
-          <div class="absolute top-4 right-4 flex items-center gap-1.5 text-xs font-medium text-gray-500">
-            <i class="pi pi-spin pi-spinner"></i>
-          </div>
-        }
-
-        <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-          <i class="pi pi-pen-to-square text-yellow-600 dark:text-yellow-500"></i> Notas Rápidas
-        </h4>
-<textarea
+  <p-dialog
+    header="Editar Notas Rápidas"
+    [(visible)]="isNotesExpanded"
+    [modal]="true"
+    [maximizable]="true"
+    appendTo="body"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '90vw', maxWidth: '900px', height: '75vh' }"
+    [contentStyle]="{ display: 'flex', 'flex-direction': 'column' }"
+    styleClass="font-sans"
+  >
+    @if (isNotesExpanded) {
+      <div class="flex-grow flex flex-col pt-4 custom-quill-wrapper-large">
+        <p-editor
           [formControl]="quickNotesControl"
-          (blur)="saveNotes()"
-          class="w-full bg-transparent border-none focus:ring-0 resize-none text-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 p-0 h-32 focus:outline-none"
-          placeholder="Digite suas anotações aqui..."></textarea>
+          [style]="{ height: 'calc(70vh - 200px)', minHeight: '250px' }"
+          placeholder="Escreva suas anotações aqui..."
+        >
+          <ng-template pTemplate="header">
+            <span class="ql-formats">
+              <button class="ql-bold" aria-label="Negrito"></button>
+              <button class="ql-italic" aria-label="Itálico"></button>
+              <button class="ql-underline" aria-label="Sublinhado"></button>
+            </span>
+            <span class="ql-formats">
+              <button class="ql-header" value="1" aria-label="Título 1"></button>
+              <button class="ql-header" value="2" aria-label="Título 2"></button>
+            </span>
+            <span class="ql-formats">
+              <button class="ql-list" value="ordered" aria-label="Lista Numérica"></button>
+              <button class="ql-list" value="bullet" aria-label="Lista de Marcadores"></button>
+            </span>
+            <span class="ql-formats">
+              <button class="ql-clean" aria-label="Remover Formatação"></button>
+            </span>
+          </ng-template>
+        </p-editor>
       </div>
+    }
 
-    </div>
-
-  </div>
+    <ng-template pTemplate="footer">
+      <div class="flex justify-end pt-3 mt-2">
+        <button
+          type="button"
+          (click)="saveNotes(); isNotesExpanded = false"
+          class="px-6 py-2.5 font-medium text-white bg-slate-800 rounded-lg hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-sm transition-colors cursor-pointer flex items-center gap-2"
+        >
+          <i class="pi pi-check text-sm"></i> Salvar e Fechar
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
 </div>

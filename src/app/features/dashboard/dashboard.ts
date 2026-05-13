@@ -1,17 +1,28 @@
-import {ChangeDetectorRef, Component, inject, OnInit} from '@angular/core';
-
-import {DashboardService} from './services/dashboard.service';
-import {DashboardNotes, DashboardSummary} from '../../core/models/dashboard.model';
-import {CurrencyPipe, DatePipe} from '@angular/common';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
-import {InputNumber} from 'primeng/inputnumber';
-import {Subscription} from 'rxjs';
-import {RouterLink} from '@angular/router';
-import {ProjectPipelineResponse} from '../../core/models/project.model';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DashboardService } from './services/dashboard.service';
+import {AnnotationDTO, DashboardSummary} from '../../core/models/dashboard.model';
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { InputNumber } from 'primeng/inputnumber';
+import { Subscription } from 'rxjs';
+import { RouterLink } from '@angular/router';
+import { ProjectPipelineResponse } from '../../core/models/project.model';
+import {MessageService, PrimeTemplate} from 'primeng/api';
+import { Dialog } from 'primeng/dialog';
+import { Editor } from 'primeng/editor';
+import {Skeleton} from 'primeng/skeleton';
+import {
+  CdkDrag,
+  CdkDragDrop, CdkDragPlaceholder,
+  CdkDropList,
+  CdkDropListGroup,
+  moveItemInArray,
+  transferArrayItem
+} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CurrencyPipe, ReactiveFormsModule, InputNumber, DatePipe, RouterLink],
+  imports: [CurrencyPipe, ReactiveFormsModule, InputNumber, DatePipe, RouterLink, PrimeTemplate, Dialog, Editor, Skeleton, CdkDropList, CdkDropListGroup, CdkDrag, CdkDragPlaceholder],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
   standalone: true,
@@ -22,6 +33,7 @@ export class Dashboard implements OnInit {
   deliveriesThisWeek: number = 0;
 
   userHourlyRate: number = 0;
+  isLoading: boolean = true;
 
   projectsNegotiation: ProjectPipelineResponse[] = [];
   projectsInProgress: ProjectPipelineResponse[] = [];
@@ -37,17 +49,21 @@ export class Dashboard implements OnInit {
 
   private subscriptions = new Subscription();
   protected suggestedPrice: number = 0;
+  protected isNotesExpanded: boolean = false;
 
-  constructor(private fb: FormBuilder, private service:DashboardService, private cdr: ChangeDetectorRef) {
+  constructor(private fb: FormBuilder, private service: DashboardService, private messageService: MessageService, private cdr: ChangeDetectorRef) {
     this.initForms();
   }
 
   ngOnInit(): void {
-    this.countActiveProjects()
+    this.loadUserHourlyRate();
+    this.countActiveProjects();
     this.loadKanbanData();
     this.loadQuickNotes();
-    this.loadUserHourlyRate();
     this.setupReactiveCalculators();
+
+    this.isLoading = false;
+    this.cdr.detectChanges();
   }
 
   countActiveProjects(): void {
@@ -72,7 +88,7 @@ export class Dashboard implements OnInit {
     });
 
     this.hourForm = this.fb.group({
-      hourValue: { value: null, disabled: true },
+      hourValue: { value: this.userHourlyRate, disabled: true },
       estimatedHours: [null]
     });
   }
@@ -106,14 +122,13 @@ export class Dashboard implements OnInit {
   saveNotes() {
     this.isSavingNotes = true;
     if (this.quickNotesControl.value == null) return;
-    const notes: DashboardNotes = {
-      content: this.quickNotesControl.value,
-    };
+    const notes: AnnotationDTO = { content: this.quickNotesControl.value};
 
     this.service.updateAnnotation(notes).subscribe({
-      next: (response) => {
+      next: (response: AnnotationDTO) => {
         this.isSavingNotes = false;
-        this.loadQuickNotes();
+        this.quickNotesControl.setValue(response.content);
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error(error);
@@ -123,7 +138,7 @@ export class Dashboard implements OnInit {
 
   loadQuickNotes() {
     this.service.findAnnotation().subscribe({
-      next: (response: DashboardNotes): void => {
+      next: (response: AnnotationDTO): void => {
         this.quickNotesControl.setValue(response.content);
         this.cdr.detectChanges();
       },
@@ -149,11 +164,43 @@ export class Dashboard implements OnInit {
       next: (response) => {
         this.userHourlyRate = response;
         this.hourForm.patchValue({hourValue: response});
+        this.cdr.detectChanges();
       }
     })
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
+  }
+
+  dropProject(event: CdkDragDrop<any[]>, newStatus: string) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+
+      const movedProject = event.container.data[event.currentIndex];
+      movedProject.status = newStatus;
+
+      this.service.changeStatus(movedProject.id, newStatus).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Status do projeto atualizado.' });
+          this.loadKanbanData()
+        },
+        error: (err) => {
+          transferArrayItem(
+            event.container.data,
+            event.previousContainer.data,
+            event.currentIndex,
+            event.previousIndex
+          );
+        }
+      });
+    }
   }
 }
