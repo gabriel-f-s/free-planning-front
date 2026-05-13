@@ -1,24 +1,34 @@
-import {ChangeDetectorRef, Component, inject, OnInit} from '@angular/core';
-import {ProjectService} from '../services/project.service';
-import {ProjectDetailResponse, ProjectRequest} from '../../../core/models/project.model';
-import {CurrencyPipe, DatePipe, NgClass} from '@angular/common';
-import {ActivatedRoute, RouterLink} from '@angular/router';
-import {ProjectStatusBadge} from '../../../core/components/project-status-badge/project-status-badge';
-import {ProjectPlatformBadge} from '../../../core/components/project-platform-badge/project-platform-badge';
-import {ProjectTypeBadge} from '../../../core/components/project-type-badge/project-type-badge';
-import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Select} from 'primeng/select';
-import {AutoComplete} from 'primeng/autocomplete';
-import {InputNumber} from 'primeng/inputnumber';
-import {DatePicker} from 'primeng/datepicker';
-import {ClientSummaryResponse} from '../../../core/models/client.model';
-import {Dialog} from 'primeng/dialog';
-import {Status} from '../../../core/enums/status.enum';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ProjectService } from '../services/project.service';
+import { ProjectDetailResponse, ProjectUpdateRequest } from '../../../core/models/project.model';
+import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ProjectStatusBadge } from '../../../core/components/project-status-badge/project-status-badge';
+import { ProjectPlatformBadge } from '../../../core/components/project-platform-badge/project-platform-badge';
+import { ProjectTypeBadge } from '../../../core/components/project-type-badge/project-type-badge';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Select } from 'primeng/select';
+import { AutoComplete } from 'primeng/autocomplete';
+import { InputNumber } from 'primeng/inputnumber';
+import { DatePicker } from 'primeng/datepicker';
+import { ClientSummaryResponse } from '../../../core/models/client.model';
+import { Dialog } from 'primeng/dialog';
+import { Status } from '../../../core/enums/status.enum';
 import { Type } from '../../../core/enums/type.enum';
 import { Platform } from '../../../core/enums/platform.enum';
-import {debounceTime, distinctUntilChanged, filter, of, Subject, switchMap} from 'rxjs';
-import {PaginationModel} from '../../../core/models/pagination.model';
-import {ClientsService} from '../../clients/services/clients.service';
+import { debounceTime, distinctUntilChanged, filter, of, Subject, switchMap } from 'rxjs';
+import { PaginationModel } from '../../../core/models/pagination.model';
+import { ClientsService } from '../../clients/services/clients.service';
+import { ProjectPlatformPipe } from '../../../core/pipes/project-platform-pipe';
+import { ProjectTypePipe } from '../../../core/pipes/project-type-pipe';
+import { ProjectStatusPipe } from '../../../core/pipes/project-status-pipe';
+import { PrimeTemplate } from 'primeng/api';
+import { ClientFormService } from '../../clients/services/client-form.service';
+import { Editor } from 'primeng/editor';
+import { parse, format } from 'date-fns';
+import { KanbanBoard } from '../components/kanban-board/kanban-board';
+import { AnnotationDTO } from '../../../core/models/dashboard.model';
+import { InputText } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-project-detail',
@@ -35,38 +45,46 @@ import {ClientsService} from '../../clients/services/clients.service';
     AutoComplete,
     InputNumber,
     DatePicker,
-    Dialog
+    ProjectPlatformPipe,
+    ProjectTypePipe,
+    ProjectStatusPipe,
+    PrimeTemplate,
+    Dialog,
+    Editor,
+    KanbanBoard,
+    InputText,
   ],
   templateUrl: './project-detail.html',
   styleUrl: './project-detail.css',
 })
-export class ProjectDetail implements OnInit{
-  private activeRoute = inject(ActivatedRoute);
-  private service: ProjectService = inject(ProjectService);
-
-  constructor(private cdr: ChangeDetectorRef, private clientService: ClientsService) {
-  }
+export class ProjectDetail implements OnInit {
+  constructor(
+    private activeRoute: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
+    private service: ProjectService,
+    private clientService: ClientsService,
+    private clientFormService: ClientFormService,
+  ) {}
 
   protected loading: boolean = false;
-  protected projectResponse: ProjectDetailResponse | null = null;
-
-  protected projectRequest: ProjectRequest | null = null;
+  protected isSavingNotes: boolean = false;
+  protected isKanbanExpanded: boolean = false;
   protected isEditing: boolean = false;
+  protected isNotesExpanded: boolean = false;
 
+  protected projectResponse: ProjectDetailResponse | null = null;
   protected projectStatus: Status[] = Object.values(Status);
   protected projectPlatform: Platform[] = Object.values(Platform);
   protected projectType: Type[] = Object.values(Type);
-  protected clients: ClientSummaryResponse[] = [];
-  private clientSearch$ = new Subject<string>();
 
-  protected isSavingNotes: any;
-  protected projectNotesControl =  new FormControl('');
-  protected isKanbanExpanded: boolean = false;
+  protected projectNotesControl = new FormControl('');
+  protected datePattern: string = 'yyyy-MM-dd';
 
   protected projectForm: FormGroup = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.maxLength(100)]),
     description: new FormControl('', [Validators.maxLength(255)]),
     platform: new FormControl('', [Validators.required]),
+    status: new FormControl('', [Validators.required]),
     type: new FormControl('', [Validators.required]),
     minimumValue: new FormControl('', [Validators.required]),
     maximumValue: new FormControl('', [Validators.required]),
@@ -74,43 +92,81 @@ export class ProjectDetail implements OnInit{
     deliveryForecast: new FormControl('', [Validators.required]),
     deliveryDate: new FormControl(''),
     clientId: new FormControl('', [Validators.required]),
+    isPersonalProject: new FormControl(false),
   });
+
+  protected clients: ClientSummaryResponse[] = [];
+  protected clientControl: FormControl<ClientSummaryResponse | string | null> = new FormControl(
+    null,
+  );
+  private clientSearch$ = new Subject<string>();
 
   ngOnInit() {
     const id = this.activeRoute.snapshot.paramMap.get('id');
-
     if (id) {
       this.findProject(id);
     }
   }
 
   findProject(id: string): void {
+    this.loading = true;
     this.service.findOne(id).subscribe({
       next: (response: ProjectDetailResponse) => {
         this.projectResponse = response;
+
+        if (response.annotation) {
+          this.projectNotesControl.setValue(response.annotation, { emitEvent: false });
+        } else {
+          this.projectNotesControl.setValue('', { emitEvent: false });
+        }
+
+        this.loading = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
         console.error(error);
+        this.loading = false;
+        this.cdr.detectChanges();
       },
-    })
+    });
   }
 
   protected save() {
+    if (this.projectForm.invalid) return;
     const id: string | null = this.activeRoute.snapshot.paramMap.get('id');
+
     if (id != null) {
-      this.service.update(id, this.projectRequest).subscribe({
+      const payload: ProjectUpdateRequest = { ...this.projectForm.value };
+      const forecastRaw = payload.deliveryForecast as any;
+      const deliveryRaw = payload.deliveryDate as any;
+
+      if (forecastRaw) {
+        if (forecastRaw instanceof Date) {
+          payload.deliveryForecast = format(forecastRaw, 'yyyy-MM-dd');
+        } else if (typeof forecastRaw === 'string' && forecastRaw.includes('/')) {
+          const parsedDate = parse(forecastRaw, 'dd/MM/yyyy', new Date());
+          payload.deliveryForecast = format(parsedDate, 'yyyy-MM-dd');
+        }
+      }
+
+      if (deliveryRaw) {
+        if (deliveryRaw instanceof Date) {
+          payload.deliveryDate = format(deliveryRaw, 'yyyy-MM-dd');
+        } else if (typeof deliveryRaw === 'string' && deliveryRaw.includes('/')) {
+          const parsedDate = parse(deliveryRaw, 'dd/MM/yyyy', new Date());
+          payload.deliveryDate = format(parsedDate, 'yyyy-MM-dd');
+        }
+      }
+
+      this.service.update(id, this.projectForm.value).subscribe({
         next: (response: ProjectDetailResponse) => {
           this.projectResponse = response;
           this.isEditing = false;
           this.cdr.detectChanges();
         },
-        error: (error) => {
-          console.error(error);
-        },
-      })
+        error: (error) => console.error(error),
+      });
     }
-
   }
 
   protected toggleEdit() {
@@ -129,7 +185,7 @@ export class ProjectDetail implements OnInit{
             return of({ content: [] } as PaginationModel);
           }
           return this.clientService.findClientsByName(trimmed);
-        })
+        }),
       )
       .subscribe({
         next: (value: PaginationModel) => {
@@ -146,13 +202,16 @@ export class ProjectDetail implements OnInit{
         status: project.status,
         platform: project.platform,
         type: project.type,
-        client: project.client,
         minimumValue: project.minimumValue,
         maximumValue: project.maximumValue,
         closedValue: project.closedValue,
-        deliveryForecast: project.deliveryForecast,
-        deliveryDate: project.deliveryDate
+        deliveryForecast: project.deliveryForecast
+          ? new Date(project.deliveryForecast + 'T00:00:00')
+          : null,
+        deliveryDate: project.deliveryDate ? new Date(project.deliveryDate + 'T00:00:00') : null,
+        clientId: project.client.id,
       });
+      this.clientControl.setValue(project.client);
     }, 0);
 
     this.isEditing = true;
@@ -171,7 +230,41 @@ export class ProjectDetail implements OnInit{
     this.projectForm.patchValue({ clientId: client.id });
   }
 
-  protected saveNotes() {
+  protected openClientDialog(): void {
+    const form = this.clientFormService.open();
+    if (!form) return;
+    form.subscribe({
+      next: (result) => {
+        if (result) {
+          this.clients = [result, ...this.clients.filter((c) => c.id !== result.id)];
+          this.projectForm.patchValue({ clientId: result.id });
+          this.clientControl.setValue(result);
+        }
+      },
+      error: (error) => console.error(error),
+    });
+  }
 
+  protected saveNotes() {
+    const id: string | null = this.activeRoute.snapshot.paramMap.get('id');
+    if (id == null) return;
+
+    this.isSavingNotes = true;
+
+    const notes: AnnotationDTO = { content: this.projectNotesControl.value || '' };
+
+    this.service.updateAnnotation(id, notes).subscribe({
+      next: (response: AnnotationDTO) => {
+        this.isSavingNotes = false;
+        this.projectNotesControl.setValue(response.content, { emitEvent: false });
+        this.isNotesExpanded = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error(error);
+        this.isSavingNotes = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 }

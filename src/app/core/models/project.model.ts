@@ -1,6 +1,6 @@
 import {ClientDetailResponse} from './client.model';
 
-export interface ProjectRequest {
+export interface ProjectCreateRequest {
   title: string;
   description: string;
   platform: string;
@@ -10,7 +10,24 @@ export interface ProjectRequest {
   closedValue: number;
   deliveryForecast: string;
   deliveryDate: string;
+  isPersonalProject: boolean;
   clientId: number;
+}
+
+export interface ProjectUpdateRequest {
+  title: string;
+  description: string;
+  platform: string;
+  status: string;
+  type: string;
+  minimumValue: number;
+  maximumValue: number;
+  closedValue: number;
+  deliveryForecast: string;
+  deliveryDate: string;
+  annotation: string;
+  isPersonalProject: boolean;
+  clientId: string;
 }
 
 export interface ProjectSummaryResponse {
@@ -37,6 +54,8 @@ export interface ProjectDetailResponse {
   closedValue: number;
   deliveryForecast: string;
   deliveryDate: string;
+  annotation: string;
+  isPersonalProject: boolean;
   client: ClientDetailResponse;
 }
 
@@ -48,4 +67,8 @@ export interface ProjectPipelineResponse {
   closedValue: number,
   deliveryDate: string,
   client: string
+}
+
+export interface ProjectBoardResponse {
+  columns: KanbanColumnResponse[]
 }

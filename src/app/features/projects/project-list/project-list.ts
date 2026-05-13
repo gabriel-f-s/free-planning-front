@@ -13,6 +13,8 @@ import { ProjectTypeBadge } from '../../../core/components/project-type-badge/pr
 import { ProjectForm } from '../components/project-form/project-form';
 import { ProjectService } from '../services/project.service';
 import {RouterLink} from '@angular/router';
+import {ClientsService} from '../../clients/services/clients.service';
+import {ClientFormService} from '../../clients/services/client-form.service';
 
 @Component({
   selector: 'app-projects',
@@ -30,9 +32,12 @@ import {RouterLink} from '@angular/router';
   standalone: true,
 })
 export class ProjectList implements OnInit {
-  private projectService: ProjectService = inject(ProjectService);
-  private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
-  private dialogService: DialogService = inject(DialogService);
+
+  constructor(
+    private projectService: ProjectService,
+    private dialogService: DialogService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   projects: ProjectSummaryResponse[] = [];
   loading = false;
@@ -46,7 +51,7 @@ export class ProjectList implements OnInit {
     this.findAllProjects();
   }
 
-  findAllProjects(): void {
+  protected findAllProjects(): void {
     this.loading = true;
 
     this.projectService.findAllProjects(this.actualPage, this.pageSize).subscribe({
@@ -54,19 +59,17 @@ export class ProjectList implements OnInit {
         this.projects = response.content;
         this.totalPages = response.page.totalPages;
         this.totalElements = response.page.totalElements;
-
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
         console.error(error);
         this.loading = false;
-        this.cdr.detectChanges();
       },
     });
   }
 
-  changePage(event: any): void {
+  protected changePage(event: any): void {
     this.actualPage = event.first / event.rows;
     this.pageSize = event.rows;
     this.findAllProjects();
@@ -75,9 +78,10 @@ export class ProjectList implements OnInit {
   openProjectDialog(): void {
     const ref = this.dialogService.open(ProjectForm, {
       width: '100%',
-      styleClass: 'max-w-4xl',
+      styleClass: 'max-w-4xl z-[9999]',
       showHeader: false,
       closable: false,
+      baseZIndex: 10000,
       maskStyleClass: 'bg-black/40 backdrop-blur-sm',
       contentStyle: {
         'padding': '0',

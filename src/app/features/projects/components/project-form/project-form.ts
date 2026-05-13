@@ -1,21 +1,25 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-
-import {AutoComplete} from 'primeng/autocomplete';
-import {Select} from 'primeng/select';
-import {InputNumber} from 'primeng/inputnumber';
+import { format, parse } from 'date-fns';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { AutoComplete } from 'primeng/autocomplete';
 import { DatePickerModule } from 'primeng/datepicker';
+import { InputNumber } from 'primeng/inputnumber';
+import { InputText } from 'primeng/inputtext';
+import { Select } from 'primeng/select';
+import { Textarea } from 'primeng/textarea';
+import { Subject, debounceTime, distinctUntilChanged, filter, of, switchMap } from 'rxjs';
 
-
-import { Type } from '../../../../core/enums/type.enum';
 import { Platform } from '../../../../core/enums/platform.enum';
-import { ClientsService } from '../../../clients/services/clients.service';
+import { Type } from '../../../../core/enums/type.enum';
 import { ClientSummaryResponse } from '../../../../core/models/client.model';
 import { PaginationModel } from '../../../../core/models/pagination.model';
-import { ClientForm } from '../../../clients/components/client-form/client-form';
+import { ProjectCreateRequest } from '../../../../core/models/project.model';
+import { ProjectPlatformPipe } from '../../../../core/pipes/project-platform-pipe';
+import { ProjectTypePipe } from '../../../../core/pipes/project-type-pipe';
+import { ClientFormService } from '../../../clients/services/client-form.service';
+import { ClientsService } from '../../../clients/services/clients.service';
 import { ProjectService } from '../../services/project.service';
-import { Subject, debounceTime, distinctUntilChanged, filter, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-project-form',
@@ -25,24 +29,46 @@ import { Subject, debounceTime, distinctUntilChanged, filter, of, switchMap } fr
     ReactiveFormsModule,
     Select,
     InputNumber,
+    ProjectPlatformPipe,
+    ProjectTypePipe,
+    Textarea,
+    InputText,
   ],
   templateUrl: './project-form.html',
   styleUrl: './project-form.css',
   standalone: true,
 })
 export class ProjectForm implements OnInit {
-  private dialog: DynamicDialogRef<ProjectForm> = inject(DynamicDialogRef<ProjectForm>);
-  private dialogService: DialogService = inject(DialogService);
-  private service: ProjectService = inject(ProjectService);
-  private clientService: ClientsService = inject(ClientsService);
-  private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
+  constructor(
+    private dialog: DynamicDialogRef<ProjectForm>,
+    private service: ProjectService,
+    private clientService: ClientsService,
+    private clientFormService: ClientFormService,
+    private cdr: ChangeDetectorRef,
+  ) {}
+
+  protected clients: ClientSummaryResponse[] = [];
+  protected clientControl: FormControl<ClientSummaryResponse | string | null> = new FormControl(
+    null,
+  );
   private clientSearch$ = new Subject<string>();
 
-  clientControl: FormControl<ClientSummaryResponse | string | null> = new FormControl(null);
+  protected projectType: Type[] = Object.values(Type);
+  protected projectPlatform: Platform[] = Object.values(Platform);
+  protected projectForm: FormGroup = new FormGroup({
+    title: new FormControl('', [Validators.required, Validators.maxLength(100)]),
+    description: new FormControl('', [Validators.maxLength(255)]),
+    platform: new FormControl('', [Validators.required]),
+    type: new FormControl('', [Validators.required]),
+    isPersonalProject: new FormControl(false),
 
-  clients: ClientSummaryResponse[] = [];
-  projectType: Type[] = Object.values(Type);
-  projectPlatform: Platform[] = Object.values(Platform);
+    minimumValue: new FormControl('', [Validators.required]),
+    maximumValue: new FormControl('', [Validators.required]),
+    closedValue: new FormControl(''),
+    deliveryForecast: new FormControl('', [Validators.required]),
+    deliveryDate: new FormControl(''),
+    clientId: new FormControl('', [Validators.required]),
+  });
 
   ngOnInit(): void {
     this.clientSearch$
@@ -57,7 +83,7 @@ export class ProjectForm implements OnInit {
             return of({ content: [] } as PaginationModel);
           }
           return this.clientService.findClientsByName(trimmed);
-        })
+        }),
       )
       .subscribe({
         next: (value: PaginationModel) => {
@@ -68,36 +94,52 @@ export class ProjectForm implements OnInit {
       });
   }
 
-  onClientComplete(event: { query: string }): void {
-    this.clientSearch$.next(event.query ?? '');
-  }
-
-  projectForm: FormGroup = new FormGroup({
-    title: new FormControl('', [Validators.required, Validators.maxLength(100)]),
-    description: new FormControl('', [Validators.maxLength(255)]),
-    platform: new FormControl('', [Validators.required]),
-    type: new FormControl('', [Validators.required]),
-    minimumValue: new FormControl('', [Validators.required]),
-    maximumValue: new FormControl('', [Validators.required]),
-    closedValue: new FormControl(''),
-    deliveryForecast: new FormControl('', [Validators.required]),
-    deliveryDate: new FormControl(''),
-    clientId: new FormControl('', [Validators.required]),
-  });
-
   save(): void {
     if (this.projectForm.valid) {
-      const data = this.projectForm.value;
-      console.log(data);
+      const isPersonal = this.projectForm.value.isPersonalProject;
+      const data: ProjectCreateRequest = {
+        title: this.projectForm.value.title!,
+        description: this.projectForm.value.description || '',
+        platform: this.projectForm.value.platform || '',
+        type: this.projectForm.value.type!,
+        isPersonalProject: isPersonal!,
+        clientId: isPersonal ? (null as any) : this.projectForm.value.clientId,
+        closedValue: isPersonal ? 0 : this.projectForm.value.closedValue || 0,
+        minimumValue: isPersonal ? 0 : this.projectForm.value.minimumValue || 0,
+        maximumValue: isPersonal ? 0 : this.projectForm.value.maximumValue || 0,
+        deliveryForecast: this.projectForm.value.deliveryForecast || '',
+        deliveryDate: this.projectForm.value.deliveryDate || '',
+      };
+
+      const forecastRaw = data.deliveryForecast as any;
+      const deliveryRaw = data.deliveryDate as any;
+
+      if (forecastRaw) {
+        if (forecastRaw instanceof Date) {
+          data.deliveryForecast = format(forecastRaw, 'yyyy-MM-dd');
+        } else if (typeof forecastRaw === 'string' && forecastRaw.includes('/')) {
+          const parsedDate = parse(forecastRaw, 'dd/MM/yyyy', new Date());
+          data.deliveryForecast = format(parsedDate, 'yyyy-MM-dd');
+        }
+      }
+
+      if (deliveryRaw) {
+        if (deliveryRaw instanceof Date) {
+          data.deliveryDate = format(deliveryRaw, 'yyyy-MM-dd');
+        } else if (typeof deliveryRaw === 'string' && deliveryRaw.includes('/')) {
+          const parsedDate = parse(deliveryRaw, 'dd/MM/yyyy', new Date());
+          data.deliveryDate = format(parsedDate, 'yyyy-MM-dd');
+        }
+      }
+
       this.service.create(data).subscribe({
         next: (response) => {
-          console.log(response);
           this.dialog.close(response);
         },
         error: (error) => {
           console.error(error);
-        }
-      })
+        },
+      });
       this.cdr.detectChanges();
     } else {
       this.projectForm.markAllAsTouched();
@@ -108,26 +150,18 @@ export class ProjectForm implements OnInit {
     this.dialog.close();
   }
 
-  openClientDialog(): void {
-    const ref = this.dialogService.open(ClientForm, {
-      width: '100%',
-      styleClass: 'max-w-4xl',
-      showHeader: false,
-      closable: false,
-      maskStyleClass: 'bg-black/40 backdrop-blur-sm',
-      contentStyle: {
-        'padding': '0',
-        'background-color': 'transparent',
-        'overflow': 'visible'
-      },
-      style: {
-        'background-color': 'transparent',
-        'border': 'none',
-        'box-shadow': 'none'
-      }
-    });
+  onClientComplete(event: { query: string }): void {
+    this.clientSearch$.next(event.query ?? '');
+  }
 
-    ref?.onClose.subscribe({
+  selectClient(client: ClientSummaryResponse): void {
+    this.projectForm.patchValue({ clientId: client.id });
+  }
+
+  openClientDialog(): void {
+    const form = this.clientFormService.open();
+    if (!form) return;
+    form.subscribe({
       next: (result) => {
         if (result) {
           this.clients = [result, ...this.clients.filter((c) => c.id !== result.id)];
@@ -139,8 +173,27 @@ export class ProjectForm implements OnInit {
     });
   }
 
-  selectClient(client: ClientSummaryResponse): void {
-    this.projectForm.patchValue({ clientId: client.id });
-  }
+  private setupPersonalProjectWatcher() {
+    this.projectForm.get('isPersonalProject')?.valueChanges.subscribe((isPersonal) => {
+      const comercialControls = [
+        this.projectForm.get('clientId'),
+        this.projectForm.get('closedValue'),
+        this.projectForm.get('minimumValue'),
+        this.projectForm.get('maximumValue'),
+      ];
 
+      if (isPersonal) {
+        comercialControls.forEach((control) => {
+          control?.clearValidators();
+          control?.reset();
+          control?.updateValueAndValidity();
+        });
+      } else {
+        comercialControls.forEach((control) => {
+          control?.setValidators([Validators.required]);
+          control?.updateValueAndValidity();
+        });
+      }
+    });
+  }
 }
