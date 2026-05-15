@@ -5,8 +5,6 @@ import { TagModule } from 'primeng/tag';
 import { Status } from '../../enums/status.enum';
 import { ProjectStatusPipe } from '../../pipes/project-status-pipe';
 
-type PrimeTagSeverity = 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | null | undefined;
-
 @Component({
   selector: 'app-project-status-badge',
   templateUrl: './project-status-badge.html',
@@ -16,23 +14,26 @@ type PrimeTagSeverity = 'success' | 'secondary' | 'info' | 'warn' | 'danger' | '
 export class ProjectStatusBadge {
   @Input({ required: true }) status!: Status | string | null | undefined;
 
-  protected get severity(): PrimeTagSeverity {
+  protected get severity(): string {
     switch (this.status) {
       case Status.LOSS:
       case 'LOSS':
-        return 'danger';
+        return 'bg-[#de5b52] text-white font-bold';
       case Status.CANCELED:
       case 'CANCELED':
-        return 'contrast';
+        return 'bg-[#000000] text-white font-bold';
       case Status.DELIVERED:
       case 'DELIVERED':
-        return 'success';
+        return 'bg-[#5ec242] text-white font-bold';
       case Status.IN_PROGRESS:
       case 'IN_PROGRESS':
-        return 'info';
+        return 'bg-[#52a3eb] text-white';
       case Status.UNDER_NEGOTIATION:
       case 'UNDER_NEGOTIATION':
-        return 'secondary';
+        return 'bg-[#a8a4a3] text-white';
+      case Status.ON_HOLD:
+      case 'ON_HOLD':
+        return 'bg-[#fef9c3] text-yellow-700';
       default:
         return 'secondary';
     }

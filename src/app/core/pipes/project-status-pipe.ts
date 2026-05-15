@@ -17,6 +17,8 @@ export class ProjectStatusPipe implements PipeTransform {
         return 'Cancelado';
       case 'LOSS':
         return 'Perdido'
+      case 'ON_HOLD':
+        return 'Pausado'
       default:
         return 'Desconhecido'
     }
