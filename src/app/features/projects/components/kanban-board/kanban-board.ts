@@ -18,6 +18,7 @@ import { Menu } from 'primeng/menu';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Editor } from 'primeng/editor';
+import {Textarea} from 'primeng/textarea';
 
 @Component({
   selector: 'app-kanban-board',
@@ -33,6 +34,7 @@ import { Editor } from 'primeng/editor';
     ConfirmDialogModule,
     ReactiveFormsModule,
     Editor,
+    Textarea,
   ],
   providers: [ConfirmationService],
   templateUrl: './kanban-board.html',
@@ -161,14 +163,11 @@ export class KanbanBoard implements OnInit {
 
     if (column.id.startsWith('TEMP')) {
       const payload: KanbanColumnCreateRequest = { name: trimmedName, position: column.position };
-
-      console.log('[API] Criando nova coluna:', payload);
       this.service.createColumn(this.projectId, payload).subscribe({
         next: (response) => (column.id = response.id),
       });
     } else {
       const payload: KanbanColumnRenameRequest = { name: trimmedName };
-      console.log('[API] Renomeando coluna:', column.id, payload);
       this.service.renameColumn(column.id, payload).subscribe();
     }
   }
@@ -347,6 +346,49 @@ export class KanbanBoard implements OnInit {
     });
 
     this.closeTaskDetails();
+  }
+
+  confirmDeleteTask() {
+    if (!this.selectedTask) return;
+
+    this.confirmationService.confirm({
+      header: 'Excluir Tarefa',
+      message: `Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.`,
+      icon: 'pi pi-exclamation-triangle !text-red-500',
+      acceptLabel: 'Excluir',
+      rejectLabel: 'Cancelar',
+      acceptIcon: 'none',
+      rejectIcon: 'none',
+      acceptButtonStyleClass: '!bg-red-600 !hover:bg-red-700 !border-none !text-white !px-4 !py-2 !rounded-lg !text-sm',
+      rejectButtonStyleClass: '!text-slate-600 !hover:bg-slate-100 !bg-transparent !border-none !px-4 !py-2 !rounded-lg !text-sm !mr-2',
+      accept: () => {
+        this.deleteTask(this.selectedTask!.id);
+      }
+    });
+  }
+
+  private deleteTask(taskId: string) {
+    const columns = this.kanbanColumns;
+    if (!columns) return;
+    for (const column of columns) {
+      const taskIndex = column.tasks.findIndex(t => t.id === taskId);
+      if (taskIndex !== -1) {
+        column.tasks.splice(taskIndex, 1);
+        break;
+      }
+    }
+    this.closeTaskDetails();
+    this.service.deleteTask(taskId).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Tarefa excluída com sucesso.' });
+      },
+      error: (err) => {
+        console.error(err);
+        this.findBoard(this.projectId);
+        this.cdr.detectChanges();
+        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível excluir a tarefa.' });
+      }
+    });
   }
 
   get connectedLists(): string[] {

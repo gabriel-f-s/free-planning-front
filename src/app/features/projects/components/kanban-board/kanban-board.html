@@ -1,5 +1,5 @@
 <ng-template #boardContent>
-  <div class="flex flex-col h-full w-full">
+  <div class="flex flex-col w-full" [ngClass]="isKanbanExpanded ? 'h-full' : 'h-fit'">
 
     <div class="flex items-center justify-between mb-4 shrink-0 bg-white dark:bg-neutral-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-700">
       <h3 class="text-lg font-bold text-slate-900 dark:text-neutral-100 flex items-center gap-2">
@@ -21,114 +21,118 @@
         </button>
       </div>
     </div>
+
     <div
       cdkDropList
       cdkDropListOrientation="horizontal"
       (cdkDropListDropped)="dropColumn($event)"
-      class="flex-grow flex gap-6 overflow-x-auto custom-scrollbar pb-4 h-full items-start">
+      class="flex-grow flex gap-6 overflow-x-auto custom-scrollbar pb-4 items-start"
+      [ngClass]="isKanbanExpanded ? 'h-full' : ''">
 
       @for (column of kanbanColumns; track column.id) {
 
-        <div cdkDrag class="bg-slate-50 dark:bg-neutral-800/80 rounded-2xl w-[320px] shrink-0 flex flex-col border border-slate-200 dark:border-neutral-700 shadow-sm max-h-full">
+        <div cdkDrag
+             class="bg-slate-50 dark:bg-neutral-800/80 rounded-2xl w-[320px] shrink-0 flex flex-col border border-slate-200 dark:border-neutral-700 shadow-sm overflow-hidden"
+             [ngClass]="isKanbanExpanded ? 'h-full max-h-full' : 'h-fit max-h-[550px]'">
 
-        <div cdkDragHandle class="p-4 border-b border-slate-200 dark:border-neutral-700 flex justify-between items-center bg-slate-100/50 dark:bg-neutral-800 rounded-t-2xl shrink-0 cursor-grab active:cursor-grabbing hover:bg-slate-200/50 dark:hover:bg-neutral-700 transition-colors group">
+          <div cdkDragHandle class="p-4 border-b border-slate-200 dark:border-neutral-700 flex justify-between items-center bg-slate-100/50 dark:bg-neutral-800 rounded-t-2xl shrink-0 cursor-grab active:cursor-grabbing hover:bg-slate-200/50 dark:hover:bg-neutral-700 transition-colors group">
 
-          <div class="flex-grow mr-2 overflow-hidden">
-            @if (editingColumnId === column.id) {
-              <input
-                #colNameInput
-                [value]="column.name"
-                (blur)="saveColumnName(column, colNameInput.value)"
-                (keyup.enter)="saveColumnName(column, colNameInput.value)"
-                (keyup.escape)="cancelEditColumn(column)"
-                type="text"
-                autofocus
-                class="w-full px-2 py-1 text-sm font-bold text-slate-800 dark:text-neutral-200 bg-white dark:bg-neutral-900 border border-slate-300 dark:border-neutral-600 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500/50 shadow-sm"
-                placeholder="Nome da coluna...">
-            } @else {
-              <h4
-                (dblclick)="startEditColumn(column.id)"
-                title="Dê um duplo clique para renomear"
-                class="font-bold text-slate-800 dark:text-neutral-200 truncate select-none cursor-text">
-                {{ column.name }}
-              </h4>
-            }
-          </div>
-
-          <div class="flex items-center gap-2 shrink-0">
-            <span class="bg-white dark:bg-neutral-700 text-slate-500 text-xs px-2 py-0.5 rounded-full border border-slate-200 dark:border-neutral-600 font-medium">
-              {{ column.tasks.length }}
-            </span>
-
-            <button
-              (click)="openColumnMenu($event, columnMenu, column)"
-              class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-neutral-200 rounded transition-colors cursor-pointer opacity-0 group-hover:opacity-100"
-              title="Opções da Coluna">
-              <i class="pi pi-ellipsis-h text-xs"></i>
-            </button>
-
-            <p-menu #columnMenu [popup]="true" [model]="columnMenuItems" appendTo="body" styleClass="text-sm"></p-menu>
-          </div>
-        </div>
-        <div
-          #scrollContainer
-          cdkDropList
-          [id]="column.id"
-          [cdkDropListData]="column.tasks"
-          [cdkDropListConnectedTo]="connectedLists"
-          (cdkDropListDropped)="dropTask($event)"
-          class="flex-grow p-3 overflow-y-auto custom-scrollbar flex flex-col gap-2.5 min-h-[150px]">
-
-          @for (task of column.tasks; track task.id) {
-            <div
-              cdkDrag
-              (click)="openTaskDetails(task)"
-              class="bg-white dark:bg-neutral-900 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-neutral-700 cursor-pointer active:cursor-grabbing hover:border-slate-300 dark:hover:border-neutral-500 transition-colors group relative">
-
-              <div *cdkDragPlaceholder class="bg-slate-200/50 dark:bg-neutral-700/50 rounded-xl border-2 border-dashed border-slate-400 dark:border-neutral-500 min-h-[60px]"></div>
-
-              <h5 class="font-medium text-sm text-slate-800 dark:text-neutral-200 leading-snug">{{ task.title }}</h5>
-
-              @if (task.description) {
-                <div class="mt-2 flex items-center gap-2">
-                  <i class="pi pi-align-left text-[10px] text-slate-400" title="Possui descrição"></i>
-                </div>
+            <div class="flex-grow mr-2 overflow-hidden">
+              @if (editingColumnId === column.id) {
+                <input
+                  #colNameInput
+                  [value]="column.name"
+                  (blur)="saveColumnName(column, colNameInput.value)"
+                  (keyup.enter)="saveColumnName(column, colNameInput.value)"
+                  (keyup.escape)="cancelEditColumn(column)"
+                  type="text"
+                  autofocus
+                  class="w-full px-2 py-1 text-sm font-bold text-slate-800 dark:text-neutral-200 bg-white dark:bg-neutral-900 border border-slate-300 dark:border-neutral-600 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500/50 shadow-sm"
+                  placeholder="Nome da coluna...">
+              } @else {
+                <h4
+                  (dblclick)="startEditColumn(column.id)"
+                  title="Dê um duplo clique para renomear"
+                  class="font-bold text-slate-800 dark:text-neutral-200 truncate select-none cursor-text">
+                  {{ column.name }}
+                </h4>
               }
             </div>
-          }
 
-          @if (addingTaskToColumnId === column.id) {
-            <div class="bg-white dark:bg-neutral-900 p-2 rounded-xl shadow-sm border border-yellow-400 dark:border-yellow-600">
-      <textarea
-        #newTaskInput
-        autofocus
-        (keydown.enter)="saveNewTask(column, newTaskInput.value); newTaskInput.value = ''; $event.preventDefault()"
-        (keydown.escape)="cancelAddTask()"
-        class="w-full text-sm text-slate-800 dark:text-neutral-200 bg-transparent border-none focus:ring-0 resize-none p-1 placeholder-slate-400"
-        rows="2"
-        placeholder="O que precisa ser feito?"></textarea>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="bg-white dark:bg-neutral-700 text-slate-500 text-xs px-2 py-0.5 rounded-full border border-slate-200 dark:border-neutral-600 font-medium">
+                {{ column.tasks.length }}
+              </span>
 
-              <div class="flex items-center gap-2 mt-2">
-                <button
-                  (click)="saveNewTask(column, newTaskInput.value); newTaskInput.value = ''"
-                  class="px-3 py-1.5 text-xs font-medium text-white bg-slate-800 rounded-md hover:bg-slate-900">
-                  Adicionar
-                </button>
-                <button
-                  (click)="cancelAddTask()"
-                  class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-md">
-                  <i class="pi pi-times text-xs"></i>
-                </button>
-              </div>
+              <button
+                (click)="openColumnMenu($event, columnMenu, column)"
+                class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-neutral-200 rounded transition-colors cursor-pointer opacity-0 group-hover:opacity-100"
+                title="Opções da Coluna">
+                <i class="pi pi-ellipsis-h text-xs"></i>
+              </button>
+
+              <p-menu #columnMenu [popup]="true" [model]="columnMenuItems" appendTo="body" styleClass="text-sm"></p-menu>
             </div>
-          } @else {
-            <button
-              (click)="startAddTask(column.id)"
-              class="w-full py-2 mt-1 text-slate-500 hover:text-slate-800 dark:hover:text-neutral-200 hover:bg-slate-200/50 dark:hover:bg-neutral-800 rounded-xl text-sm font-medium transition-colors cursor-pointer flex items-center gap-2 px-2 shrink-0 text-left">
-              <i class="pi pi-plus text-[10px]"></i> Adicionar Tarefa
-            </button>
-          }
-        </div>
+          </div>
+          <div
+            #scrollContainer
+            cdkDropList
+            [id]="column.id"
+            [cdkDropListData]="column.tasks"
+            [cdkDropListConnectedTo]="connectedLists"
+            (cdkDropListDropped)="dropTask($event)"
+            class="flex-grow p-3 overflow-y-auto custom-scrollbar flex flex-col gap-2.5 min-h-[120px]">
+
+            @for (task of column.tasks; track task.id) {
+              <div
+                cdkDrag
+                (click)="openTaskDetails(task)"
+                class="bg-white dark:bg-neutral-900 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-neutral-700 cursor-pointer active:cursor-grabbing hover:border-slate-300 dark:hover:border-neutral-500 transition-colors group relative">
+
+                <div *cdkDragPlaceholder class="bg-slate-200/50 dark:bg-neutral-700/50 rounded-xl border-2 border-dashed border-slate-400 dark:border-neutral-500 min-h-[60px]"></div>
+
+                <h5 class="font-medium text-sm text-slate-800 dark:text-neutral-200 leading-snug">{{ task.title }}</h5>
+
+                @if (task.description) {
+                  <div class="mt-2 flex items-center gap-2">
+                    <i class="pi pi-align-left text-[10px] text-slate-400" title="Possui descrição"></i>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (addingTaskToColumnId === column.id) {
+              <div class="bg-white dark:bg-neutral-900 p-2 rounded-xl shadow-sm border border-yellow-400 dark:border-yellow-600">
+                <textarea
+                  #newTaskInput
+                  autofocus
+                  (keydown.enter)="saveNewTask(column, newTaskInput.value); newTaskInput.value = ''; $event.preventDefault()"
+                  (keydown.escape)="cancelAddTask()"
+                  class="w-full text-sm text-slate-800 dark:text-neutral-200 bg-transparent border-none focus:ring-0 resize-none p-1 placeholder-slate-400"
+                  rows="2"
+                  placeholder="O que precisa ser feito?"></textarea>
+
+                <div class="flex items-center gap-2 mt-2">
+                  <button
+                    (click)="saveNewTask(column, newTaskInput.value); newTaskInput.value = ''"
+                    class="px-3 py-1.5 text-xs font-medium text-white bg-slate-800 rounded-md hover:bg-slate-900">
+                    Adicionar
+                  </button>
+                  <button
+                    (click)="cancelAddTask()"
+                    class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-md">
+                    <i class="pi pi-times text-xs"></i>
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <button
+                (click)="startAddTask(column.id)"
+                class="w-full py-2 mt-1 text-slate-500 hover:text-slate-800 dark:hover:text-neutral-200 hover:bg-slate-200/50 dark:hover:bg-neutral-800 rounded-xl text-sm font-medium transition-colors cursor-pointer flex items-center gap-2 px-2 shrink-0 text-left">
+                <i class="pi pi-plus text-[10px]"></i> Adicionar Tarefa
+              </button>
+            }
+          </div>
         </div>
       }
     </div>
@@ -136,7 +140,7 @@
 </ng-template>
 
 @if (!isKanbanExpanded) {
-  <div class="h-[600px] mt-8 mb-8">
+  <div class="mb-4">
     <ng-container *ngTemplateOutlet="boardContent"></ng-container>
   </div>
 }
@@ -173,13 +177,15 @@
 
   <ng-template pTemplate="header">
     <div class="flex items-start gap-5 w-full pr-4 pt-2">
-      <i class="pi pi-credit-card text-slate-400 dark:text-neutral-500 text-xl"></i>
+      <i class="pi pi-credit-card text-slate-400 dark:text-neutral-500 text-xl mt-1"></i>
       <div class="flex-grow w-full">
-        <textarea
-          [formControl]="taskForm.controls.title"
-          class="w-full text-xl font-bold text-slate-800 dark:text-neutral-200 bg-transparent border-none focus:ring-0 resize-none p-0 focus:outline-none placeholder-slate-400"
-          rows="1"
-          placeholder="Título da tarefa..."></textarea>
+      <textarea
+        pTextarea
+        [autoResize]="true"
+        [formControl]="taskForm.controls.title"
+        class="w-full text-xl font-bold text-slate-800 dark:text-neutral-200 bg-transparent border-none focus:ring-0 p-0 focus:outline-none placeholder-slate-400 overflow-hidden shadow-none"
+        rows="1"
+        placeholder="Título da tarefa..."></textarea>
       </div>
     </div>
   </ng-template>
@@ -218,18 +224,28 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <div class="flex justify-end gap-2 pt-3">
+    <div class="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-neutral-800 w-full">
+
       <button
-        (click)="closeTaskDetails()"
-        class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 dark:text-neutral-400 dark:hover:text-neutral-200 transition-colors cursor-pointer">
-        Cancelar
+        (click)="confirmDeleteTask()"
+        class="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors cursor-pointer"
+        title="Excluir Tarefa">
+        <i class="pi pi-trash"></i>
       </button>
-      <button
-        (click)="saveTaskDetails()"
-        [disabled]="taskForm.invalid"
-        class="px-6 py-2 text-sm font-medium text-white bg-slate-800 rounded-lg hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-        <i class="pi pi-check text-xs"></i> Salvar Alterações
-      </button>
+
+      <div class="flex justify-end gap-2">
+        <button
+          (click)="closeTaskDetails()"
+          class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 dark:text-neutral-400 dark:hover:text-neutral-200 transition-colors cursor-pointer">
+          Cancelar
+        </button>
+        <button
+          (click)="saveTaskDetails()"
+          [disabled]="taskForm.invalid"
+          class="px-6 py-2 text-sm font-medium text-white bg-slate-800 rounded-lg hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+          <i class="pi pi-check text-xs"></i> Salvar Alterações
+        </button>
+      </div>
     </div>
   </ng-template>
 </p-dialog>
