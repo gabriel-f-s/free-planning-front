@@ -17,7 +17,7 @@ export interface ProjectCreateRequest {
 export interface ProjectUpdateRequest {
   title: string;
   description: string;
-  platform: string;
+  platform: string | null;
   status: string;
   type: string;
   minimumValue: number;
@@ -39,6 +39,7 @@ export interface ProjectSummaryResponse {
   type: string;
   closedValue: number;
   deliveryForecast: string;
+  isPersonalProject: boolean;
   client: string;
 }
 
@@ -62,11 +63,9 @@ export interface ProjectDetailResponse {
 export interface ProjectPipelineResponse {
   id: string,
   title: string,
-  platform: string
-  type: string,
   closedValue: number,
   deliveryDate: string,
-  client: string
+  isPersonalProject: boolean
 }
 
 export interface ProjectBoardResponse {
