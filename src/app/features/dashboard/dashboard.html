@@ -134,9 +134,15 @@
                 <div class="font-medium text-sm text-slate-900 dark:text-neutral-200 truncate">
                   {{ proj.title }}
                 </div>
-                <div class="text-xs text-slate-500 dark:text-neutral-400 mt-2 font-medium">
-                  {{ proj.closedValue | currency: 'BRL' }}
-                </div>
+                @if (proj.closedValue) {
+                  <div class="text-xs text-slate-500 dark:text-neutral-400 mt-2 font-medium">
+                    {{ proj.closedValue | currency: 'BRL' }}
+                  </div>
+                } @else if (!proj.closedValue && !proj.isPersonalProject) {
+                  <div class="text-xs text-slate-500 dark:text-neutral-400 mt-2 font-medium">
+                    Valor ainda não definido.
+                  </div>
+                }
               </div>
             }
           </div>
