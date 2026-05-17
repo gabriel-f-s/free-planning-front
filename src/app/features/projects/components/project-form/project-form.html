@@ -1,216 +1,116 @@
-<div
-  class="bg-white dark:bg-neutral-800 rounded-2xl shadow-xl border border-slate-200 dark:border-neutral-700 p-6 md:p-8 max-w-4xl mx-auto font-sans text-slate-900 dark:text-neutral-100"
->
-  <div class="mb-8 border-b border-slate-200 dark:border-neutral-700 pb-4">
-    <h2
-      class="text-2xl font-bold tracking-tight text-slate-900 dark:text-neutral-100 flex items-center gap-2"
-    >
+<div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-xl border border-slate-200 dark:border-neutral-700 p-6 md:p-8 max-w-4xl mx-auto font-sans text-slate-900 dark:text-neutral-100 flex flex-col max-h-[90vh] relative">
+
+  <div class="mb-4 border-b border-slate-200 dark:border-neutral-700 pb-4 shrink-0">
+    <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-neutral-100 flex items-center gap-2">
       <i class="pi pi-book text-slate-700 dark:text-slate-300"></i> Novo Projeto
     </h2>
-    <p class="text-sm text-slate-500 dark:text-neutral-400 mt-1">
-      Preencha as informações do novo escopo para começar.
-    </p>
+    <p class="text-sm text-slate-500 dark:text-neutral-400 mt-1">Preencha as informações do novo escopo para começar.</p>
   </div>
 
-  <form [formGroup]="projectForm" (ngSubmit)="save()" class="flex flex-col gap-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="flex flex-col gap-1.5 w-full">
-        <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300"
-          >Nome do projeto</label
-        >
-        <input
-          pInputText
-          type="text"
-          formControlName="title"
-          class="w-full p-3 rounded-lg border border-slate-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-slate-900 dark:text-neutral-100 focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-shadow"
-          placeholder="Ex: Refatoração do App"
-        />
+  <form [formGroup]="projectForm" (ngSubmit)="save()" class="flex flex-col flex-grow overflow-hidden">
+
+    <div class="flex-grow overflow-y-auto custom-scrollbar pr-2 pb-2 flex flex-col gap-6">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        <div class="flex flex-col gap-1.5 w-full md:col-span-2">
+          <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300">Nome do projeto</label>
+          <input
+            pInputText
+            type="text"
+            formControlName="title"
+            class="w-full p-3 rounded-lg border border-slate-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-slate-900 dark:text-neutral-100 focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-shadow"
+            placeholder="Ex: Refatoração do App" />
+        </div>
+
+        @if (!projectForm.value.isPersonalProject) {
+          <div class="flex flex-col gap-1.5 w-full">
+            <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300">Plataforma</label>
+            <p-select [options]="projectPlatform" formControlName="platform" appendTo="body" styleClass="w-full" [showClear]="true" placeholder="Selecione a plataforma">
+              <ng-template pTemplate="selectedItem" let-item>@if (item) { <span>{{ item | projectPlatform }}</span> }</ng-template>
+              <ng-template pTemplate="item" let-item><span>{{ item | projectPlatform }}</span></ng-template>
+            </p-select>
+          </div>
+        }
+
+        <div class="flex flex-col gap-1.5 w-full">
+          <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300">Tipo</label>
+          <p-select [options]="projectType" formControlName="type" appendTo="body" styleClass="w-full" [showClear]="true" placeholder="Selecione o tipo">
+            <ng-template pTemplate="selectedItem" let-item>@if (item) { <span>{{ item | projectType }}</span> }</ng-template>
+            <ng-template pTemplate="item" let-item><span>{{ item | projectType }}</span></ng-template>
+          </p-select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between p-4 rounded-xl border border-blue-200 bg-blue-50/50 dark:border-blue-900/30 dark:bg-blue-900/10">
+        <div class="flex flex-col">
+          <span class="text-sm font-bold text-slate-800 dark:text-neutral-200">Projeto Pessoal</span>
+          <span class="text-xs text-slate-500 dark:text-neutral-400">Desativa o vínculo com clientes e métricas financeiras.</span>
+        </div>
+        <p-toggleSwitch formControlName="isPersonalProject"></p-toggleSwitch>
       </div>
 
       <div class="flex flex-col gap-1.5 w-full">
-        <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300">Cliente</label>
-        <p-autoComplete
-          [formControl]="clientControl"
-          [suggestions]="clients"
-          [forceSelection]="true"
-          [dropdown]="true"
-          appendTo="body"
-          optionLabel="name"
-          panelStyleClass="!z-[9999]"
-          (completeMethod)="onClientComplete($event)"
-          (onSelect)="selectClient($event.value)"
-          inputStyleClass="w-full p-3 rounded-l-lg border border-slate-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-slate-900 dark:text-neutral-100 focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
-          placeholder="Busque o cliente"
-        >
-          <ng-template pTemplate="footer">
-            <button
-              type="button"
-              class="w-full text-center text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-neutral-300 dark:hover:bg-neutral-700 py-3 transition-colors cursor-pointer border-t border-slate-200 dark:border-neutral-700"
-              (click)="openClientDialog()"
-            >
-              <i class="pi pi-plus text-xs mr-1"></i> Cadastrar Novo Cliente
-            </button>
-          </ng-template>
-        </p-autoComplete>
+        <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300">Descrição</label>
+        <textarea
+          pTextarea
+          formControlName="description"
+          rows="4"
+          class="w-full p-3 rounded-lg border border-slate-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-slate-900 dark:text-neutral-100 focus:ring-2 focus:ring-slate-500 transition-shadow resize-y"
+          placeholder="Detalhes do projeto..."></textarea>
       </div>
+
+      @if (!projectForm.value.isPersonalProject) {
+        <div class="flex flex-col gap-6 pt-6 border-t border-slate-200 dark:border-neutral-700">
+
+          <div class="flex flex-col gap-1.5 w-full">
+            <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300">Cliente</label>
+            <p-autoComplete
+              [formControl]="clientControl" [suggestions]="clients" [forceSelection]="true" [dropdown]="true" appendTo="body" optionLabel="name"
+              panelStyleClass="!z-[9999]" (completeMethod)="onClientComplete($event)" (onSelect)="selectClient($event.value)"
+              inputStyleClass="w-full p-3 rounded-l-lg border border-slate-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-slate-900"
+              placeholder="Busque o cliente">
+              <ng-template pTemplate="footer">
+                <button type="button" class="w-full text-center text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-neutral-300 dark:hover:bg-neutral-700 py-3 transition-colors cursor-pointer border-t border-slate-200 dark:border-neutral-700" (click)="openClientDialog()">
+                  <i class="pi pi-plus text-xs mr-1"></i> Cadastrar Novo Cliente
+                </button>
+              </ng-template>
+            </p-autoComplete>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 dark:bg-neutral-700/30 p-6 rounded-xl border border-slate-200 dark:border-neutral-700">
+            <div class="flex flex-col gap-1.5 w-full">
+              <label class="text-xs font-semibold text-slate-600 dark:text-neutral-400 uppercase tracking-wider">Valor Mínimo</label>
+              <p-inputNumber formControlName="minimumValue" mode="currency" currency="BRL" locale="pt-BR" styleClass="w-full" inputStyleClass="w-full bg-white dark:bg-neutral-900 border-slate-300"></p-inputNumber>
+            </div>
+            <div class="flex flex-col gap-1.5 w-full">
+              <label class="text-xs font-semibold text-slate-600 dark:text-neutral-400 uppercase tracking-wider">Valor Máximo</label>
+              <p-inputNumber formControlName="maximumValue" mode="currency" currency="BRL" locale="pt-BR" styleClass="w-full" inputStyleClass="w-full bg-white dark:bg-neutral-900 border-slate-300"></p-inputNumber>
+            </div>
+            <div class="flex flex-col gap-1.5 w-full">
+              <label class="text-xs font-semibold text-green-600 dark:text-green-500 uppercase tracking-wider">Valor Fechado</label>
+              <p-inputNumber formControlName="closedValue" mode="currency" currency="BRL" locale="pt-BR" styleClass="w-full" inputStyleClass="w-full bg-green-50 dark:bg-green-900/20 text-green-700 font-bold border-green-200 dark:border-green-800"></p-inputNumber>
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-200 dark:border-neutral-700">
+        <div class="flex flex-col gap-1.5 w-full">
+          <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300">Previsão de Entrega</label>
+          <p-datepicker formControlName="deliveryForecast" appendTo="body" dateFormat="dd/mm/yy" dataType="string" [showIcon]="true" styleClass="w-full" inputStyleClass="w-full" />
+        </div>
+        <div class="flex flex-col gap-1.5 w-full">
+          <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300">Data de Entrega Efetiva</label>
+          <p-datepicker formControlName="deliveryDate" appendTo="body" dateFormat="dd/mm/yy" dataType="string" [showIcon]="true" styleClass="w-full" inputStyleClass="w-full" />
+        </div>
+      </div>
+
     </div>
 
-    <div class="flex flex-col gap-1.5 w-full">
-      <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300">Descrição</label>
-      <textarea
-        pTextarea
-        formControlName="description"
-        rows="4"
-        class="w-full p-3 rounded-lg border border-slate-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-slate-900 dark:text-neutral-100 focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-shadow resize-y"
-        placeholder="Detalhes do projeto, expectativas..."
-      ></textarea>
+    <div class="shrink-0 flex flex-col-reverse sm:flex-row justify-end gap-3 pt-5 mt-2 border-t border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800">
+      <button type="button" (click)="close()" class="px-5 py-2.5 font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors w-full sm:w-auto">Cancelar</button>
+      <button type="submit" [disabled]="projectForm.invalid" class="px-6 py-2.5 font-medium text-white bg-slate-800 rounded-lg hover:bg-slate-900 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-full sm:w-auto">Salvar Projeto</button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="flex flex-col gap-1.5 w-full">
-        <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300"
-          >Plataforma de Aquisição</label
-        >
-        <p-select
-          [options]="projectPlatform"
-          formControlName="platform"
-          appendTo="body"
-          styleClass="w-full"
-          [showClear]="true"
-          placeholder="Selecione a plataforma"
-        >
-          <ng-template pTemplate="selectedItem" let-item>
-            @if (item) {
-              <span>{{ item | projectPlatform }}</span>
-            }
-          </ng-template>
-          <ng-template pTemplate="item" let-item>
-            <span>{{ item | projectPlatform }}</span>
-          </ng-template>
-        </p-select>
-      </div>
-
-      <div class="flex flex-col gap-1.5 w-full">
-        <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300">Tipo</label>
-        <p-select
-          [options]="projectType"
-          formControlName="type"
-          appendTo="body"
-          styleClass="w-full"
-          [showClear]="true"
-          placeholder="Selecione o tipo"
-        >
-          <ng-template pTemplate="selectedItem" let-item>
-            @if (item) {
-              <span>{{ item | projectType }}</span>
-            }
-          </ng-template>
-          <ng-template pTemplate="item" let-item>
-            <span>{{ item | projectType }}</span>
-          </ng-template>
-        </p-select>
-      </div>
-    </div>
-
-    <div
-      class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 dark:bg-neutral-700/30 p-6 rounded-xl border border-slate-200 dark:border-neutral-700"
-    >
-      <div class="flex flex-col gap-1.5 w-full">
-        <label
-          class="text-xs font-semibold text-slate-600 dark:text-neutral-400 uppercase tracking-wider"
-          >Valor Mínimo</label
-        >
-        <p-inputNumber
-          formControlName="minimumValue"
-          mode="currency"
-          currency="BRL"
-          locale="pt-BR"
-          styleClass="w-full"
-          inputStyleClass="w-full bg-white dark:bg-neutral-900 border-slate-300 dark:border-neutral-600"
-        ></p-inputNumber>
-      </div>
-
-      <div class="flex flex-col gap-1.5 w-full">
-        <label
-          class="text-xs font-semibold text-slate-600 dark:text-neutral-400 uppercase tracking-wider"
-          >Valor Máximo</label
-        >
-        <p-inputNumber
-          formControlName="maximumValue"
-          mode="currency"
-          currency="BRL"
-          locale="pt-BR"
-          styleClass="w-full"
-          inputStyleClass="w-full bg-white dark:bg-neutral-900 border-slate-300 dark:border-neutral-600"
-        ></p-inputNumber>
-      </div>
-
-      <div class="flex flex-col gap-1.5 w-full">
-        <label
-          class="text-xs font-semibold text-green-600 dark:text-green-500 uppercase tracking-wider"
-          >Valor Fechado</label
-        >
-        <p-inputNumber
-          formControlName="closedValue"
-          mode="currency"
-          currency="BRL"
-          locale="pt-BR"
-          styleClass="w-full"
-          inputStyleClass="w-full bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 font-bold"
-        ></p-inputNumber>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="flex flex-col gap-1.5 w-full">
-        <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300"
-          >Previsão de Entrega</label
-        >
-        <p-datepicker
-          formControlName="deliveryForecast"
-          appendTo="body"
-          dateFormat="dd/mm/yy"
-          dataType="string"
-          [showIcon]="true"
-          styleClass="w-full"
-          inputStyleClass="w-full"
-        />
-      </div>
-
-      <div class="flex flex-col gap-1.5 w-full">
-        <label class="text-sm font-semibold text-slate-700 dark:text-neutral-300"
-          >Data de Entrega Efetiva</label
-        >
-        <p-datepicker
-          formControlName="deliveryDate"
-          appendTo="body"
-          dateFormat="dd/mm/yy"
-          dataType="string"
-          [showIcon]="true"
-          styleClass="w-full"
-          inputStyleClass="w-full"
-        />
-      </div>
-    </div>
-
-    <div
-      class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 mt-2 border-t border-slate-200 dark:border-neutral-700"
-    >
-      <button
-        type="button"
-        (click)="close()"
-        class="px-5 py-2.5 font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-600 dark:hover:bg-neutral-700 transition-colors w-full sm:w-auto"
-      >
-        Cancelar
-      </button>
-
-      <button
-        type="submit"
-        [disabled]="projectForm.invalid"
-        class="px-6 py-2.5 font-medium text-white bg-slate-800 rounded-lg hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-full sm:w-auto"
-      >
-        Salvar Projeto
-      </button>
-    </div>
   </form>
 </div>

@@ -8,6 +8,12 @@ import { InputNumber } from 'primeng/inputnumber';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { Textarea } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { TextareaModule } from 'primeng/textarea';
+import { InputTextModule } from 'primeng/inputtext';
 import { Subject, debounceTime, distinctUntilChanged, filter, of, switchMap } from 'rxjs';
 
 import { Platform } from '../../../../core/enums/platform.enum';
@@ -33,6 +39,13 @@ import { ProjectService } from '../../services/project.service';
     ProjectTypePipe,
     Textarea,
     InputText,
+    SelectModule,
+    DatePickerModule,
+    ToggleSwitchModule,
+    AutoCompleteModule,
+    InputNumberModule,
+    TextareaModule,
+    InputTextModule
   ],
   templateUrl: './project-form.html',
   styleUrl: './project-form.css',
@@ -71,6 +84,7 @@ export class ProjectForm implements OnInit {
   });
 
   ngOnInit(): void {
+    this.setupPersonalProjectWatcher()
     this.clientSearch$
       .pipe(
         filter((term) => typeof term === 'string'),
@@ -100,7 +114,7 @@ export class ProjectForm implements OnInit {
       const data: ProjectCreateRequest = {
         title: this.projectForm.value.title!,
         description: this.projectForm.value.description || '',
-        platform: this.projectForm.value.platform || '',
+        platform: isPersonal ? '' : this.projectForm.value.platform || '',
         type: this.projectForm.value.type!,
         isPersonalProject: isPersonal!,
         clientId: isPersonal ? (null as any) : this.projectForm.value.clientId,
@@ -180,6 +194,7 @@ export class ProjectForm implements OnInit {
         this.projectForm.get('closedValue'),
         this.projectForm.get('minimumValue'),
         this.projectForm.get('maximumValue'),
+        this.projectForm.get('platform'),
       ];
 
       if (isPersonal) {
