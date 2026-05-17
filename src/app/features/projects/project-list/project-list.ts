@@ -78,7 +78,7 @@ export class ProjectList implements OnInit {
   openProjectDialog(): void {
     const ref = this.dialogService.open(ProjectForm, {
       width: '100%',
-      styleClass: 'max-w-4xl z-[9999]',
+      styleClass: 'max-w-4xl',
       showHeader: false,
       closable: false,
       baseZIndex: 10000,

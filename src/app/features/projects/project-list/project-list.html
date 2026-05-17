@@ -29,7 +29,11 @@
                 {{ project.title }}
               </h3>
               <p class="text-sm text-slate-500 dark:text-neutral-400 mt-1 flex items-center gap-1.5 truncate font-medium">
+                @if (project.client) {
                 <i class="pi pi-user text-xs"></i> {{ project.client }}
+                } @else {
+                Projeto pessoal
+                }
               </p>
             </div>
             <div class="flex-shrink-0">
@@ -57,13 +61,23 @@
                   {{ project.deliveryForecast | date: 'dd/MM/yyyy' }}
                 </span>
               </div>
-              <div class="flex flex-col gap-1">
-                <span class="text-slate-500 dark:text-neutral-400 text-xs font-medium">Valor</span>
-                <span class="font-semibold text-sm text-slate-800 dark:text-neutral-200 flex items-center gap-1.5">
+              @if (project.closedValue) {
+                <div class="flex flex-col gap-1">
+                  <span class="text-slate-500 dark:text-neutral-400 text-xs font-medium">Valor</span>
+                  <span class="font-semibold text-sm text-slate-800 dark:text-neutral-200 flex items-center gap-1.5">
                   <i class="pi pi-money-bill text-xs text-green-600 dark:text-green-500"></i>
-                  {{ project.closedValue | currency: 'BRL' }}
+                    {{ project.closedValue | currency: 'BRL' }}
                 </span>
-              </div>
+                </div>
+              } @else if (!project.closedValue && !project.isPersonalProject) {
+                <div class="flex flex-col gap-1">
+                  <span class="text-slate-500 dark:text-neutral-400 text-xs font-medium">Valor</span>
+                  <span class="font-semibold text-sm text-slate-800 dark:text-neutral-200 flex items-center gap-1.5">
+                  <i class="pi pi-money-bill text-xs text-green-600 dark:text-green-500"></i>
+                    Valor ainda não definido
+                </span>
+                </div>
+              }
             </div>
           </div>
 
