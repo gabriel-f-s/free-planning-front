@@ -11,6 +11,7 @@ import { Select } from 'primeng/select';
 import { AutoComplete } from 'primeng/autocomplete';
 import { InputNumber } from 'primeng/inputnumber';
 import { DatePicker } from 'primeng/datepicker';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { ClientSummaryResponse } from '../../../core/models/client.model';
 import { Dialog } from 'primeng/dialog';
 import { Status } from '../../../core/enums/status.enum';
@@ -45,6 +46,7 @@ import { InputText } from 'primeng/inputtext';
     AutoComplete,
     InputNumber,
     DatePicker,
+    ToggleSwitchModule,
     ProjectPlatformPipe,
     ProjectTypePipe,
     ProjectStatusPipe,
@@ -102,10 +104,36 @@ export class ProjectDetail implements OnInit {
   private clientSearch$ = new Subject<string>();
 
   ngOnInit() {
+    this.setupPersonalProjectWatcher();
+
     const id = this.activeRoute.snapshot.paramMap.get('id');
     if (id) {
       this.findProject(id);
     }
+  }
+
+  private setupPersonalProjectWatcher() {
+    this.projectForm.get('isPersonalProject')?.valueChanges.subscribe((isPersonal) => {
+      const comercialControls = [
+        this.projectForm.get('clientId'),
+        this.projectForm.get('closedValue'),
+        this.projectForm.get('minimumValue'),
+        this.projectForm.get('maximumValue'),
+        this.projectForm.get('platform'),
+      ];
+
+      if (isPersonal) {
+        comercialControls.forEach((control) => {
+          control?.clearValidators();
+          control?.updateValueAndValidity();
+        });
+      } else {
+        comercialControls.forEach((control) => {
+          control?.setValidators([Validators.required]);
+          control?.updateValueAndValidity();
+        });
+      }
+    });
   }
 
   findProject(id: string): void {
@@ -137,6 +165,13 @@ export class ProjectDetail implements OnInit {
 
     if (id != null) {
       const payload: ProjectUpdateRequest = { ...this.projectForm.value };
+      const isPersonal = payload.isPersonalProject;
+      payload.clientId = isPersonal ? (null as any) : payload.clientId;
+      payload.closedValue = isPersonal ? 0 : payload.closedValue || 0;
+      payload.minimumValue = isPersonal ? 0 : payload.minimumValue || 0;
+      payload.maximumValue = isPersonal ? 0 : payload.maximumValue || 0;
+      payload.platform = isPersonal ? null : payload.platform || null;
+
       const forecastRaw = payload.deliveryForecast as any;
       const deliveryRaw = payload.deliveryDate as any;
 
@@ -158,7 +193,7 @@ export class ProjectDetail implements OnInit {
         }
       }
 
-      this.service.update(id, this.projectForm.value).subscribe({
+      this.service.update(id, payload).subscribe({
         next: (response: ProjectDetailResponse) => {
           this.projectResponse = response;
           this.isEditing = false;
@@ -209,9 +244,15 @@ export class ProjectDetail implements OnInit {
           ? new Date(project.deliveryForecast + 'T00:00:00')
           : null,
         deliveryDate: project.deliveryDate ? new Date(project.deliveryDate + 'T00:00:00') : null,
-        clientId: project.client.id,
+        isPersonalProject: project.isPersonalProject,
+        clientId: project.client ? project.client.id : null,
       });
-      this.clientControl.setValue(project.client);
+
+      if (project.client) {
+        this.clientControl.setValue(project.client);
+      } else {
+        this.clientControl.reset();
+      }
     }, 0);
 
     this.isEditing = true;
