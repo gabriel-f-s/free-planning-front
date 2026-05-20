@@ -6,12 +6,10 @@ import {HTTP_INTERCEPTORS, provideHttpClient, withInterceptors, withInterceptors
 import {AuthInterceptor} from './core/interceptors/auth-interceptor';
 import {providePrimeNG} from 'primeng/config';
 import { DialogService } from 'primeng/dynamicdialog';
-import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 import Aura from '@primeng/themes/aura'
 import { definePreset } from '@primeng/themes';
 import {MessageService} from 'primeng/api';
 import {errorInterceptor} from './core/interceptors/error-interceptor';
-import {provideMarkdown} from 'ngx-markdown';
 
 const Noir = definePreset(Aura, {
   semantic: {
@@ -75,7 +73,6 @@ export const appConfig: ApplicationConfig = {
       useClass: AuthInterceptor,
       multi: true
     },
-    provideAnimationsAsync(),
     DialogService,
     providePrimeNG({
       theme: {
@@ -92,6 +89,5 @@ export const appConfig: ApplicationConfig = {
       }
     }),
     MessageService,
-    provideMarkdown(),
   ]
 };
